@@ -57,9 +57,6 @@ public class DemoResourceTest {
         httpServer.shutdownNow();
     }
     
-    /* on each of the 8 endpoints we first test whether the data is not null
-    and then whether the endpoint's empty. These tests are very hardcoded,
-    but as the endpoints return randomized data it's a logical solution */
     @Test
     public void testExternalAPIEndpoint() {
         ApiDTO result = given()
@@ -73,16 +70,6 @@ public class DemoResourceTest {
             assertTrue(!result.getChuckJoke().isEmpty());
             assertTrue(!Objects.isNull(result.getChuckJokeID()));
             assertTrue(!result.getChuckJokeID().isEmpty());
-            
-            assertTrue(!Objects.isNull(result.getCountryArea()));
-            assertTrue(!result.getCountryArea().isEmpty());
-            assertTrue(!Objects.isNull(result.getCountryName()));
-            assertTrue(!result.getCountryName().isEmpty());
-            
-            assertTrue(!Objects.isNull(result.getCopenhagenTime()));
-            assertTrue(!result.getCopenhagenTime().isEmpty());
-            assertTrue(!Objects.isNull(result.getWeekNumber()));
-            assertTrue(!result.getWeekNumber().isEmpty());
             
             assertTrue(!Objects.isNull(result.getDadJoke()));
             assertTrue(!result.getDadJoke().isEmpty());
