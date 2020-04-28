@@ -1,6 +1,6 @@
 package rest;
 
-import entities.RenameMe;
+import entities.InternalJoke;
 import entities.User;
 import entities.Role;
 
@@ -28,7 +28,7 @@ public class LoginEndpointTest {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
-    private static RenameMe r1, r2;
+    private static InternalJoke r1, r2;
 
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
@@ -43,7 +43,7 @@ public class LoginEndpointTest {
     public static void setUpClass() {
         //This method must be called before you request the EntityManagerFactory
         EMF_Creator.startREST_TestWithDB();
-        emf = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.TEST, EMF_Creator.Strategy.CREATE);
+        emf = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.TEST, EMF_Creator.Strategy.DROP_AND_CREATE);
 
         httpServer = startServer();
         //Setup RestAssured
