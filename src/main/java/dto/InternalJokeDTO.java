@@ -12,6 +12,7 @@ import entities.InternalJoke;
  * @author andre
  */
 public class InternalJokeDTO {
+
     private Long id;
     private String createdBy;
     private String jokeContent;
@@ -24,16 +25,20 @@ public class InternalJokeDTO {
         this.createdBy = createdBy;
         this.jokeContent = jokeContent;
     }
-    
-    public InternalJokeDTO(InternalJoke joke) {
-        this.id = joke.getId();
-        this.createdBy = joke.getCreatedBy().getUserName();
-        this.jokeContent = joke.getJokeContent();
-    }
 
     public InternalJokeDTO(String createdBy, String jokeContent) {
         this.createdBy = createdBy;
         this.jokeContent = jokeContent;
+    }
+
+    public InternalJokeDTO(String jokeContent) {
+        this.jokeContent = jokeContent;
+    }
+
+    public InternalJokeDTO(InternalJoke joke) {
+        this.id = joke.getId();
+        this.createdBy = joke.getCreatedBy().getUserName();
+        this.jokeContent = joke.getJokeContent();
     }
 
     public Long getId() {
@@ -59,6 +64,5 @@ public class InternalJokeDTO {
     public void setJokeContent(String jokeContent) {
         this.jokeContent = jokeContent;
     }
-    
-    
+
 }

@@ -3,6 +3,7 @@ package rest;
 import dto.ApiDTO;
 import dto.InternalJokeDTO;
 import entities.InternalJoke;
+import entities.Role;
 import entities.User;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
@@ -33,8 +34,8 @@ public class InternalJokeResourceTest {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
-    private static InternalJoke r1, r2;
-    private static User u1;
+    private static String p1, p2;
+    private static User u1, u2;
 
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
@@ -58,14 +59,33 @@ public class InternalJokeResourceTest {
         RestAssured.defaultParser = Parser.JSON;
 
     }
-    
+
     @BeforeEach
     public void setUp() {
-        u1 = new User("Lars", "54321");
+        logOut();
         EntityManager em = emf.createEntityManager();
+        
         try {
             em.getTransaction().begin();
+
+            em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
+            em.createQuery("DELETE FROM User").executeUpdate();
+            em.createQuery("DELETE FROM Role").executeUpdate();
+
+            p1 = "54321";
+            p2 = "Monkey";
+            u1 = new User("Lars", p1);
+            u2 = new User("Per", p2);
+            Role userRole = new Role("user");
+            Role adminRole = new Role("admin");
+            u1.addRole(userRole);
+            u2.addRole(adminRole);
+
+            em.persist(userRole);
+            em.persist(adminRole);
             em.persist(u1);
+            em.persist(u2);
+
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -78,48 +98,100 @@ public class InternalJokeResourceTest {
         EMF_Creator.endREST_TestWithDB();
         httpServer.shutdownNow();
     }
-    
+
     @AfterEach
     public void tearDown() {
+        logOut();
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
             em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
             em.createQuery("DELETE FROM User").executeUpdate();
-
+            em.createQuery("DELETE FROM Role").executeUpdate();
             em.getTransaction().commit();
         } finally {
             em.close();
         }
     }
 
-    /* on each of the 8 endpoints we first test whether the data is not null
-    and then whether the endpoint's empty. These tests are very hardcoded,
-    but as the endpoints return randomized data it's a logical solution */
+    //This is how we hold on to the token after login, similar to that a client must store the token somewhere
+    private static String securityToken;
+
+    //Utility method to login and set the returned securityToken
+    private static void login(String role, String password) {
+        String json = String.format("{username: \"%s\", password: \"%s\"}", role, password);
+        securityToken = given()
+                .contentType("application/json")
+                .body(json)
+                //.when().post("/api/login")
+                .when().post("/login")
+                .then().log().body()
+                .extract().path("token");
+        System.out.println("TOKEN ---> " + securityToken);
+    }
+
+    private void logOut() {
+        securityToken = null;
+    }
+
     @Test
-    public void testExternalAPIEndpoint() {
-        InternalJokeDTO newJoke = new InternalJokeDTO(u1.getUserName(), "Haha fun");
+    public void testAddJokeEndpoint() {
+        User user = u1;
+        
+        InternalJokeDTO newJoke = new InternalJokeDTO("Haha fun");
+        login(user.getUserName(), p1);
+
         InternalJokeDTO result = given()
-                .contentType("application/json").body(newJoke)
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(newJoke)
                 .when()
                 .post("/joke").then()
                 .statusCode(200)
                 .extract().body().as(InternalJokeDTO.class);
-        
+
         assertTrue(result.getJokeContent().equals(newJoke.getJokeContent()));
-        assertTrue(result.getCreatedBy().equals(newJoke.getCreatedBy()));
-        
+        assertTrue(result.getCreatedBy().equals(user.getUserName()));
+
         EntityManager em = emf.createEntityManager();
         try {
             InternalJoke dbResult = em.find(InternalJoke.class, result.getId());
             assertTrue(result.getCreatedBy().equals(dbResult.getCreatedBy().getUserName()));
             assertTrue(result.getJokeContent().equals(dbResult.getJokeContent()));
-        } catch(Exception e) {
+        } catch (Exception e) {
             fail("Issues getting results from database");
         } finally {
             em.close();
-        } 
-        
+        }
 
+    }
+    
+    @Test
+    public void test_Negative_AddJokeEndpoint_NotLoggedIn() {
+        logOut();
+        InternalJokeDTO newJoke = new InternalJokeDTO("best joke ever!");
+
+        given()
+                .contentType("application/json")
+                .body(newJoke)
+                .when()
+                .post("/joke").then()
+                .statusCode(403);
+    }
+    
+    @Test
+    public void test_Negative_AddJokeEndpoint_NotUserRole() {
+        User user = u2; // Admin role, not User
+        
+        InternalJokeDTO newJoke = new InternalJokeDTO("new funny joke");
+        login(user.getUserName(), p2);
+
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(newJoke)
+                .when()
+                .post("/joke").then()
+                .statusCode(401);
     }
 }
