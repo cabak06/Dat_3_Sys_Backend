@@ -1,12 +1,14 @@
 package facades;
 
 import dto.InternalJokeDTO;
+import dto.InternalJokesDTO;
 import entities.InternalJoke;
 import entities.User;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 
 /**
  *
@@ -65,6 +67,18 @@ public class InternalJokeFacade {
             InternalJokeDTO newJoke = new InternalJokeDTO(ij);
             return newJoke;
         }finally{  
+            em.close();
+        }
+    }
+    
+    public InternalJokesDTO getUserJokes() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<InternalJoke> query = em.createQuery("SELECT i FROM InternalJoke i", InternalJoke.class);
+            List<InternalJoke> dbList = query.getResultList();
+            InternalJokesDTO result = new InternalJokesDTO(dbList);
+            return result;
+        } finally {
             em.close();
         }
     }

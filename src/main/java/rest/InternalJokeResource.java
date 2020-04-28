@@ -3,6 +3,7 @@ package rest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dto.InternalJokeDTO;
+import dto.InternalJokesDTO;
 import utils.EMF_Creator;
 import facades.InternalJokeFacade;
 import javax.persistence.EntityManagerFactory;
@@ -47,6 +48,14 @@ public class InternalJokeResource {
         jokeAdd = FACADE.addJoke(jokeAdd);
         return GSON.toJson(jokeAdd);
     }
-
+    
+    
+    @Path("userjokes")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getUserJokes() {
+    InternalJokesDTO allJokes = FACADE.getUserJokes();
+    return GSON.toJson(allJokes);
+    }
  
 }
