@@ -9,9 +9,11 @@ import facades.InternalJokeFacade;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -70,11 +72,11 @@ public class InternalJokeResource {
     return GSON.toJson(allJokes);
     }
     
-    @Path("delete")
-    @GET
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed({"admin"})
     @Produces({MediaType.APPLICATION_JSON})
-    public String deleteUserJokes() {
-    InternalJokeDTO deleteJoke = FACADE.deleteUserJoke();
-    return GSON.toJson(deleteJoke);
+    public void deleteUserJokes(@PathParam("id")long id) {
+    FACADE.deleteUserJoke(id);
     }
 }
