@@ -4,6 +4,7 @@ import dto.InternalJokeDTO;
 import utils.EMF_Creator;
 import entities.InternalJoke;
 import entities.User;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterAll;
@@ -123,14 +124,16 @@ public class InternalJokeFacadeTest {
     
     @Test 
     public void testDeleteJoke() {
-        InternalJokeDTO jokeDTO = new InternalJokeDTO(user1.getUserName(), "Funny stuff");
-        Long expectedId = highestId + 1;
+        facade.deleteUserJoke(joke1.getId());
         
-        InternalJokeDTO result = facade.addJoke(jokeDTO);
-        
-        assertTrue(result.getJokeContent().equals(jokeDTO.getJokeContent()));
-        assertTrue(result.getCreatedBy().equals(jokeDTO.getCreatedBy()));
-        assertEquals(expectedId, result.getId());
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<InternalJoke> dbResult = em.createQuery("Select i FROM InternalJoke i", InternalJoke.class).getResultList();
+            assertEquals(dbResult.size(), jokes.length-1);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            em.close();
+        }
     } 
-
 }

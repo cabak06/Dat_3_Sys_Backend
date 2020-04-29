@@ -83,14 +83,13 @@ public class InternalJokeFacade {
         }
     }
     
-    public InternalJokeDTO deleteUserJoke() {
+    public void deleteUserJoke(long id) {
         EntityManager em = emf.createEntityManager();
         try{
-            InternalJokeDTO ij = em.find(InternalJokeDTO.class, 1);
+            InternalJoke ij = em.find(InternalJoke.class, id);
             em.getTransaction().begin();
             em.remove(ij);
             em.getTransaction().commit();
-            return ij;
         }finally{  
             em.close();
         }

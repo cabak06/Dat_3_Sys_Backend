@@ -11,6 +11,7 @@ import static io.restassured.RestAssured.given;
 import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import java.net.URI;
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -247,5 +248,44 @@ public class InternalJokeResourceTest {
                 .when()
                 .get("/joke/userjokes").then()
                 .statusCode(403);
+    }
+    
+    
+    // statusCode 204 er korrekt fordi sletningen finder sted, men resultatet ikke returneres til os.
+    @Test
+    public void testDeleteJokeEndpoint() {
+        User user = u2;
+        login(user.getUserName(), p2);
+
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/joke/"+joke3.getId()).then()
+                .statusCode(204);
+
+        InternalJokesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/userjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+        
+        int expectedLength = JOKE_ARRAY.length-1;
+        assertEquals(expectedLength, result.getJokes().size());
+    }
+    
+    @Test
+    public void negativeTestDeleteJokeEndpoint_notAdmin() {
+        User user = u1; //logged in as a regular user not admin
+        login(user.getUserName(), p1);
+
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/joke/"+joke3.getId()).then()
+                .statusCode(401);
     }
 }
