@@ -69,5 +69,12 @@ public class InternalJokeResource {
     InternalJokesDTO allJokes = FACADE.getUserJokes();
     return GSON.toJson(allJokes);
     }
- 
+    
+    @Path("delete")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    public String deleteUserJokes() {
+    InternalJokeDTO deleteJoke = FACADE.deleteUserJoke();
+    return GSON.toJson(deleteJoke);
+    }
 }

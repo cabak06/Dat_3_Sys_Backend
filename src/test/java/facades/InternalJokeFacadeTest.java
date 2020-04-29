@@ -120,5 +120,17 @@ public class InternalJokeFacadeTest {
         
         
     } 
+    
+    @Test 
+    public void testDeleteJoke() {
+        InternalJokeDTO jokeDTO = new InternalJokeDTO(user1.getUserName(), "Funny stuff");
+        Long expectedId = highestId + 1;
+        
+        InternalJokeDTO result = facade.addJoke(jokeDTO);
+        
+        assertTrue(result.getJokeContent().equals(jokeDTO.getJokeContent()));
+        assertTrue(result.getCreatedBy().equals(jokeDTO.getCreatedBy()));
+        assertEquals(expectedId, result.getId());
+    } 
 
 }

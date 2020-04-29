@@ -10,10 +10,6 @@ public class ApiDTO {
     private String dadJoke;
     private String dadJokeID;
     private final String dadURL = DadJokeDTO.getRANDOM_URL();
-    private String countryName;
-    private String countryArea;
-    private String copenhagenTime;
-    private String weekNumber;
     private final static String COULD_NOT_FETCH = "Could not fetch this data";
 
     public ApiDTO() {
@@ -82,37 +78,5 @@ public class ApiDTO {
 
     public String getDadURL() {
         return dadURL;
-    }
-
-    public String getCountryName() {
-        return countryName;
-    }
-
-    public String getCountryArea() {
-        return countryArea;
-    }
-
-    public void setCountryName(String countryName) {
-        this.countryName = countryName;
-    }
-
-    public void setCountryArea(String countryArea) {
-        this.countryArea = countryArea;
-    }
-
-    public String getCopenhagenTime() {
-        return copenhagenTime;
-    }
-
-    public void setCopenhagenTime(String copenhagenTime) {
-        this.copenhagenTime = copenhagenTime;
-    }
-
-    public String getWeekNumber() {
-        return weekNumber;
-    }
-
-    public void setWeekNumber(String weekNumber) {
-        this.weekNumber = weekNumber;
     }
 }
