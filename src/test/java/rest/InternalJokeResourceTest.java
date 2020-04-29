@@ -2,6 +2,7 @@ package rest;
 
 import dto.ApiDTO;
 import dto.InternalJokeDTO;
+import dto.InternalJokesDTO;
 import entities.InternalJoke;
 import entities.Role;
 import entities.User;
@@ -36,6 +37,8 @@ public class InternalJokeResourceTest {
     private static final String SERVER_URL = "http://localhost/api";
     private static String p1, p2;
     private static User u1, u2;
+    private static InternalJoke joke1, joke2, joke3;
+    private final static InternalJoke[] JOKE_ARRAY = new InternalJoke[]{joke1, joke2, joke3};
 
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
@@ -64,7 +67,7 @@ public class InternalJokeResourceTest {
     public void setUp() {
         logOut();
         EntityManager em = emf.createEntityManager();
-        
+
         try {
             em.getTransaction().begin();
 
@@ -81,10 +84,17 @@ public class InternalJokeResourceTest {
             u1.addRole(userRole);
             u2.addRole(adminRole);
 
+            joke1 = new InternalJoke(u1, "First joke of the day");
+            joke2 = new InternalJoke(u1, "2nd joke of the day");
+            joke3 = new InternalJoke(u1, "Final joke");
+
             em.persist(userRole);
             em.persist(adminRole);
             em.persist(u1);
             em.persist(u2);
+            em.persist(joke1);
+            em.persist(joke2);
+            em.persist(joke3);
 
             em.getTransaction().commit();
         } finally {
@@ -137,7 +147,7 @@ public class InternalJokeResourceTest {
     @Test
     public void testAddJokeEndpoint() {
         User user = u1;
-        
+
         InternalJokeDTO newJoke = new InternalJokeDTO("Haha fun");
         login(user.getUserName(), p1);
 
@@ -165,7 +175,7 @@ public class InternalJokeResourceTest {
         }
 
     }
-    
+
     @Test
     public void test_Negative_AddJokeEndpoint_NotLoggedIn() {
         logOut();
@@ -178,11 +188,11 @@ public class InternalJokeResourceTest {
                 .post("/joke").then()
                 .statusCode(403);
     }
-    
+
     @Test
     public void test_Negative_AddJokeEndpoint_NotUserRole() {
         User user = u2; // Admin role, not User
-        
+
         InternalJokeDTO newJoke = new InternalJokeDTO("new funny joke");
         login(user.getUserName(), p2);
 
@@ -193,5 +203,49 @@ public class InternalJokeResourceTest {
                 .when()
                 .post("/joke").then()
                 .statusCode(401);
+    }
+
+    @Test
+    public void testGetJokeList_UserLogin() {
+        User user = u1;
+        login(user.getUserName(), p1);
+
+        InternalJokesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/userjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+
+        int expectedSize = JOKE_ARRAY.length;
+        assertEquals(expectedSize, result.getJokes().size());
+
+    }
+
+    @Test
+    public void testGetJokeList_AdminLogin() {
+        User user = u2;
+        login(user.getUserName(), p2);
+
+        InternalJokesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/userjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+
+        int expectedSize = JOKE_ARRAY.length;
+        assertEquals(expectedSize, result.getJokes().size());
+    }
+
+    @Test
+    public void test_Negative_GetJokeList_NotLoggedIn() {
+        given()
+                .contentType("application/json")
+                .when()
+                .get("/joke/userjokes").then()
+                .statusCode(403);
     }
 }

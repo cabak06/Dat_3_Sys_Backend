@@ -19,12 +19,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator;
 
-public class DemoResourceTest {
-    
-    public DemoResourceTest() {
+public class ExternalJokeResourceTest {
+
+    public ExternalJokeResourceTest() {
     }
-    
- private static final int SERVER_PORT = 7777;
+
+    private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
     private static InternalJoke r1, r2;
 
@@ -56,25 +56,24 @@ public class DemoResourceTest {
         EMF_Creator.endREST_TestWithDB();
         httpServer.shutdownNow();
     }
-    
+
     @Test
     public void testExternalAPIEndpoint() {
         ApiDTO result = given()
-            .contentType("application/json")
-            .accept(ContentType.JSON)
-            .when()
-            .get("/info/external").then()
-            .statusCode(200)
-            .extract().body().as(ApiDTO.class);
-            assertTrue(!Objects.isNull(result.getChuckJoke()));
-            assertTrue(!result.getChuckJoke().isEmpty());
-            assertTrue(!Objects.isNull(result.getChuckJokeID()));
-            assertTrue(!result.getChuckJokeID().isEmpty());
-            
-            assertTrue(!Objects.isNull(result.getDadJoke()));
-            assertTrue(!result.getDadJoke().isEmpty());
-            assertTrue(!Objects.isNull(result.getDadJokeID()));
-            assertTrue(!result.getDadJokeID().isEmpty());
+                .contentType("application/json")
+                .accept(ContentType.JSON)
+                .when()
+                .get("/externalJoke/random").then()
+                .statusCode(200)
+                .extract().body().as(ApiDTO.class);
+        assertTrue(!Objects.isNull(result.getChuckJoke()));
+        assertTrue(!result.getChuckJoke().isEmpty());
+        assertTrue(!Objects.isNull(result.getChuckJokeID()));
+        assertTrue(!result.getChuckJokeID().isEmpty());
+
+        assertTrue(!Objects.isNull(result.getDadJoke()));
+        assertTrue(!result.getDadJoke().isEmpty());
+        assertTrue(!Objects.isNull(result.getDadJokeID()));
+        assertTrue(!result.getDadJokeID().isEmpty());
     }
 }
-   

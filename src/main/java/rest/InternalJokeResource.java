@@ -61,9 +61,9 @@ public class InternalJokeResource {
         return GSON.toJson(jokeAdd);
     }
     
-    
-    @Path("userjokes")
     @GET
+    @Path("userjokes")
+    @RolesAllowed({"user","admin"})
     @Produces({MediaType.APPLICATION_JSON})
     public String getUserJokes() {
     InternalJokesDTO allJokes = FACADE.getUserJokes();
