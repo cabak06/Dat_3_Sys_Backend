@@ -119,7 +119,7 @@ public class DemoResource {
             CountryDTO country = GSON.fromJson(fetched[2], CountryDTO[].class)[0];
             CopenhagenTimeDTO time = GSON.fromJson(fetched[3], CopenhagenTimeDTO.class);
             
-            ApiDTO apis = new ApiDTO(chuck, dad, country, time);
+            ApiDTO apis = new ApiDTO(chuck, dad);
             return GSON.toJson(apis);
         } catch (InterruptedException ex) {
             Logger.getLogger(DemoResource.class.getName()).log(Level.SEVERE, null, ex);

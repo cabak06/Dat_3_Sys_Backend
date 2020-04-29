@@ -10,18 +10,12 @@ public class ApiDTO {
     private String dadJoke;
     private String dadJokeID;
     private final String dadURL = DadJokeDTO.getRANDOM_URL();
-    private String countryName;
-    private String countryArea;
-    private final String countryURL = CountryDTO.getCOUNTRY_URL();
-    private String copenhagenTime;
-    private String weekNumber;
-    private final String timeURL = CopenhagenTimeDTO.getTIME_URL();
     private final static String COULD_NOT_FETCH = "Could not fetch this data";
 
     public ApiDTO() {
     }
 
-    public ApiDTO(ChuckJokeDTO chuck, DadJokeDTO dad, CountryDTO country, CopenhagenTimeDTO time) {
+    public ApiDTO(ChuckJokeDTO chuck, DadJokeDTO dad) {
         if (!Objects.isNull(chuck)) {
             this.chuckJoke = chuck.getValue();
             this.chuckJokeID = chuck.getId();
@@ -35,20 +29,6 @@ public class ApiDTO {
         } else {
             this.dadJoke = COULD_NOT_FETCH;
             this.dadJokeID = COULD_NOT_FETCH;
-        }
-        if (!Objects.isNull(country)) {
-            this.countryName = country.getName();
-            this.countryArea = country.getArea();
-        } else {
-            this.countryName = COULD_NOT_FETCH;
-            this.countryArea = COULD_NOT_FETCH;
-        }
-        if (!Objects.isNull(time)) {
-            this.copenhagenTime = time.getDatetime();
-            this.weekNumber = time.getWeek_number();
-        } else {
-            this.copenhagenTime = COULD_NOT_FETCH;
-            this.weekNumber = COULD_NOT_FETCH;
         }
     }
 
@@ -98,41 +78,5 @@ public class ApiDTO {
 
     public String getDadURL() {
         return dadURL;
-    }
-
-    public String getCountryName() {
-        return countryName;
-    }
-
-    public String getCountryArea() {
-        return countryArea;
-    }
-
-    public String getCountryURL() {
-        return countryURL;
-    }
-
-    public void setCountryName(String countryName) {
-        this.countryName = countryName;
-    }
-
-    public void setCountryArea(String countryArea) {
-        this.countryArea = countryArea;
-    }
-
-    public String getCopenhagenTime() {
-        return copenhagenTime;
-    }
-
-    public void setCopenhagenTime(String copenhagenTime) {
-        this.copenhagenTime = copenhagenTime;
-    }
-
-    public String getWeekNumber() {
-        return weekNumber;
-    }
-
-    public void setWeekNumber(String weekNumber) {
-        this.weekNumber = weekNumber;
     }
 }
