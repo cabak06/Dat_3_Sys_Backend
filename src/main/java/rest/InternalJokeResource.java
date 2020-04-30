@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dto.InternalJokeDTO;
 import dto.InternalJokesDTO;
+import entities.User;
 import utils.EMF_Creator;
 import facades.InternalJokeFacade;
 import javax.annotation.security.RolesAllowed;
@@ -12,6 +13,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -72,11 +74,38 @@ public class InternalJokeResource {
     return GSON.toJson(allJokes);
     }
     
+    @GET
+    @Path("ownjokes")
+    @RolesAllowed({"user"})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getUserJokesBySpecificUser(String createdBy) {
+    InternalJokesDTO allJokes = FACADE.getUserJokesForSpecificUser(createdBy);
+    return GSON.toJson(allJokes);
+    }
+    
     @DELETE
     @Path("/{id}")
     @RolesAllowed({"admin"})
     @Produces({MediaType.APPLICATION_JSON})
-    public void deleteUserJokes(@PathParam("id")long id) {
+    public void deleteUserJokesAsAdmin(@PathParam("id")long id) {
     FACADE.deleteUserJoke(id);
+    }
+    
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed({"user"})
+    @Produces({MediaType.APPLICATION_JSON})
+    public void deleteUserJokesAsUser(@PathParam("id")long id) {
+    FACADE.deleteUserJoke(id);
+    }
+    
+    @PUT
+    @Path("/{id}")
+    @RolesAllowed({"user"})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String editOwnUserJokesAsUser(String joke, @PathParam("id")long id) {
+    InternalJokeDTO editedJoke = GSON.fromJson(joke, InternalJokeDTO.class);
+    FACADE.editUserJoke(id, editedJoke);
+    return GSON.toJson(editedJoke);
     }
 }

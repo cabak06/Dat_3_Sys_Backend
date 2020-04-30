@@ -253,7 +253,7 @@ public class InternalJokeResourceTest {
     
     // statusCode 204 er korrekt fordi sletningen finder sted, men resultatet ikke returneres til os.
     @Test
-    public void testDeleteJokeEndpoint() {
+    public void testDeleteJokeEndpoint_asAdmin() {
         User user = u2;
         login(user.getUserName(), p2);
 
@@ -287,5 +287,47 @@ public class InternalJokeResourceTest {
                 .when()
                 .delete("/joke/"+joke3.getId()).then()
                 .statusCode(401);
+    }
+    
+    // statusCode 204 er korrekt fordi sletningen finder sted, men resultatet ikke returneres til os.
+    @Test
+    public void testDeleteJokeEndpoint_asUser() {
+        User user = u1;
+        login(user.getUserName(), p1);
+
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/joke/"+joke2.getId()).then()
+                .statusCode(204);
+
+        InternalJokesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/userjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+        
+        int expectedLength = JOKE_ARRAY.length-1;
+        assertEquals(expectedLength, result.getJokes().size());
+    }
+    
+    @Test
+    public void testGetOwnJokes_UserLogin() {
+        User user = u1;
+        login(user.getUserName(), p1);
+
+        InternalJokesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/ownjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+
+        int expectedSize = JOKE_ARRAY.length;
+        assertEquals(expectedSize, result.getJokes().size());
     }
 }

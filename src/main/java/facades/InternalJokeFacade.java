@@ -4,33 +4,23 @@ import dto.InternalJokeDTO;
 import dto.InternalJokesDTO;
 import entities.InternalJoke;
 import entities.User;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
-/**
- *
- * Rename Class to a relevant name Add add relevant facade methods
- */
 public class InternalJokeFacade {
 
     private static InternalJokeFacade instance;
     private static EntityManagerFactory emf;
     private UserFacade uf;
     
-    //Private Constructor to ensure Singleton
     private InternalJokeFacade() { 
         this.uf = UserFacade.getUserFacade(emf);
     }
     
-    
-    /**
-     * 
-     * @param _emf
-     * @return an instance of this facade class.
-     */
     public static InternalJokeFacade getFacadeExample(EntityManagerFactory _emf) {
         if (instance == null) {
             emf = _emf;
@@ -43,7 +33,6 @@ public class InternalJokeFacade {
         return emf.createEntityManager();
     }
     
-    //TODO Remove/Change this before use
     public long getInternalJokeCount(){
         EntityManager em = emf.createEntityManager();
         try{
@@ -52,7 +41,6 @@ public class InternalJokeFacade {
         }finally{  
             em.close();
         }
-        
     }
     
     public InternalJokeDTO addJoke(InternalJokeDTO joke) {
@@ -83,12 +71,42 @@ public class InternalJokeFacade {
         }
     }
     
+    //returning all jokes created by User X
+    public InternalJokesDTO getUserJokesForSpecificUser(String createdBy) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<InternalJoke> query = em.createQuery("SELECT i FROM InternalJoke i WHERE i.createdBy = :createdBy", InternalJoke.class)
+                .setParameter("createdBy", createdBy);
+            List<InternalJoke> dbList = query.getResultList();
+            InternalJokesDTO result = new InternalJokesDTO(dbList);
+            return result;
+        } finally {
+            em.close();
+        }
+    }
+    
     public void deleteUserJoke(long id) {
         EntityManager em = emf.createEntityManager();
         try{
             InternalJoke ij = em.find(InternalJoke.class, id);
             em.getTransaction().begin();
             em.remove(ij);
+            em.getTransaction().commit();
+        }finally{  
+            em.close();
+        }
+    }
+    
+    public void editUserJoke(long id, InternalJokeDTO internalJokeDTO) {
+        EntityManager em = emf.createEntityManager();
+        try{
+            em.getTransaction().begin();
+            InternalJoke ij = em.createQuery("SELECT i FROM InternalJoke i WHERE i.id = :id", InternalJoke.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+            ij.setJokeContent(internalJokeDTO.getJokeContent());
+            Date now = new Date();
+            ij.setLastEdited(now);
             em.getTransaction().commit();
         }finally{  
             em.close();
