@@ -101,6 +101,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({MediaType.APPLICATION_JSON})
     @Path("nsfw")
+    @RolesAllowed("user")
     public String toggleNSFW(String userData){
         UserDTO newUser = GSON.fromJson(userData, UserDTO.class);
         String thisuser = securityContext.getUserPrincipal().getName();

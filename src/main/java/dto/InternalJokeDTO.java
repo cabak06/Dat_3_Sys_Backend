@@ -47,6 +47,7 @@ public class InternalJokeDTO {
         this.id = joke.getId();
         this.createdBy = joke.getCreatedBy().getUserName();
         this.jokeContent = joke.getJokeContent();
+        this.nsfw = joke.isNsfw();
     }
 
     public Long getId() {
