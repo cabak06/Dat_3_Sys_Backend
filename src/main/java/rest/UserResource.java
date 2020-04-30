@@ -19,6 +19,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
@@ -94,5 +95,17 @@ public class UserResource {
         } else {
             return "{\"msg\": \"User registered\"}";
         }
+    }
+    
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Path("nsfw")
+    @RolesAllowed("user")
+    public String toggleNSFW(String userData){
+        UserDTO newUser = GSON.fromJson(userData, UserDTO.class);
+        String thisuser = securityContext.getUserPrincipal().getName();
+        newUser.setUsername(thisuser);
+        return GSON.toJson(facade.updateUser(newUser))  ;
     }
 }

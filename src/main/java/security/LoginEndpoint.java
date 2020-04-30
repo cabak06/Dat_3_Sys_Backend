@@ -55,6 +55,7 @@ public class LoginEndpoint {
         }
       responseJson.addProperty("username", username);
       //STUDENT INPUT: Adding roles to the response for use on client-site
+      responseJson.addProperty("nsfwIsActive", user.isNsfwIsActive());
       responseJson.add("roles", userRoles);
       responseJson.addProperty("token", token);
       return Response.ok(new Gson().toJson(responseJson)).build();

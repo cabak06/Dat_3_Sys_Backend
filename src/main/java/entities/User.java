@@ -22,83 +22,116 @@ import org.mindrot.jbcrypt.BCrypt;
 @Table(name = "users")
 public class User implements Serializable {
 
-  private static final long serialVersionUID = 1L;
-  @Id
-  @Basic(optional = false)
-  @NotNull
-  @Column(name = "user_name", length = 25)
-  private String userName;
-  @Basic(optional = false)
-  @NotNull
-  @Size(min = 1, max = 255)
-  @Column(name = "user_pass")
-  private String userPass;
-  @JoinTable(name = "user_roles", joinColumns = {
-    @JoinColumn(name = "user_name", referencedColumnName = "user_name")}, inverseJoinColumns = {
-    @JoinColumn(name = "role_name", referencedColumnName = "role_name")})
-  @ManyToMany
-  private List<Role> roleList = new ArrayList();
-  @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-  private List<InternalJoke> jokesCreated = new ArrayList();
-  
+    private static final long serialVersionUID = 1L;
+    @Id
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "user_name", length = 25)
+    private String userName;
 
-  public List<String> getRolesAsStrings() {
-    if (roleList.isEmpty()) {
-      return null;
-    }
-    List<String> rolesAsStrings = new ArrayList();
-    for (Role role : roleList) {
-      rolesAsStrings.add(role.getRoleName());
-    }
-    return rolesAsStrings;
-  }
-  
-  public User() {}
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 255)
+    @Column(name = "user_pass")
+    private String userPass;
 
-  //TODO Change when password is hashed
-   public boolean verifyPassword(String pw){
-       if (BCrypt.checkpw(pw, userPass)) {
-        //System.out.println("It matches");   
-        return(true);
-       } else {
-        //System.out.println("It does not match");
-        return(false); 
-       }
+    @JoinTable(name = "user_roles", joinColumns = {
+        @JoinColumn(name = "user_name", referencedColumnName = "user_name")}, inverseJoinColumns = {
+        @JoinColumn(name = "role_name", referencedColumnName = "role_name")})
+    @ManyToMany
+    private List<Role> roleList = new ArrayList();
+
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    private List<InternalJoke> jokesCreated = new ArrayList();
+
+    private boolean nsfwIsActive = false;
+
+    public List<String> getRolesAsStrings() {
+        if (roleList.isEmpty()) {
+            return null;
+        }
+        List<String> rolesAsStrings = new ArrayList();
+        for (Role role : roleList) {
+            rolesAsStrings.add(role.getRoleName());
+        }
+        return rolesAsStrings;
     }
 
-  public User(String userName, String userPass) {
-    this.userName = userName;
+    public User() {
+    }
 
-    this.userPass = BCrypt.hashpw(userPass, BCrypt.gensalt());
-  }
+    //TODO Change when password is hashed
+    public boolean verifyPassword(String pw) {
+        if (BCrypt.checkpw(pw, userPass)) {
+            //System.out.println("It matches");   
+            return (true);
+        } else {
+            //System.out.println("It does not match");
+            return (false);
+        }
+    }
 
+    public User(String userName, String userPass) {
+        this.userName = userName;
+        this.userPass = BCrypt.hashpw(userPass, BCrypt.gensalt());
+    }
 
-  public String getUserName() {
-    return userName;
-  }
+    public User(String userName, String userPass, boolean nsfwIsActive) {
+        this.userName = userName;
+        this.userPass = BCrypt.hashpw(userPass, BCrypt.gensalt());
+        this.nsfwIsActive = nsfwIsActive;
+    }
 
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
+    public String getUserName() {
+        return userName;
+    }
 
-  public String getUserPass() {
-    return this.userPass;
-  }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-  public void setUserPass(String userPass) {
-    this.userPass = BCrypt.hashpw(userPass, BCrypt.gensalt());
-  }
+    public String getUserPass() {
+        return this.userPass;
+    }
 
-  public List<Role> getRoleList() {
-    return roleList;
-  }
+    public void setUserPass(String userPass) {
+        this.userPass = BCrypt.hashpw(userPass, BCrypt.gensalt());
+    }
 
-  public void setRoleList(List<Role> roleList) {
-    this.roleList = roleList;
-  }
+    public List<Role> getRoleList() {
+        return roleList;
+    }
 
-  public void addRole(Role userRole) {
-    roleList.add(userRole);
-  }
+    public void setRoleList(List<Role> roleList) {
+        this.roleList = roleList;
+        for (Role role : roleList) {
+            if (role.getRoleName().contains("admin")) {
+                this.nsfwIsActive = true;
+            }
+        }
+    }
+
+    public void addRole(Role userRole) {
+        roleList.add(userRole);
+        if (userRole.getRoleName().contains("admin")) {
+            this.nsfwIsActive = true;
+        }
+    }
+
+    public List<InternalJoke> getJokesCreated() {
+        return jokesCreated;
+    }
+
+    public void setJokesCreated(List<InternalJoke> jokesCreated) {
+        this.jokesCreated = jokesCreated;
+    }
+
+    public boolean isNsfwIsActive() {
+        return nsfwIsActive;
+    }
+
+    public void setNsfwIsActive(boolean nsfwIsActive) {
+        this.nsfwIsActive = nsfwIsActive;
+    }
 
 }

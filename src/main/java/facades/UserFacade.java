@@ -108,5 +108,18 @@ public class UserFacade {
         
         return "";
     }
+    
+    public UserDTO updateUser(UserDTO user){
+        EntityManager em = emf.createEntityManager();
+        try{
+            em.getTransaction().begin();
+            User dbUser = em.find(User.class, user.getUsername());
+            dbUser.setNsfwIsActive(user.isNsfwActive());
+            em.getTransaction().commit();
+            return new UserDTO(dbUser);
+        } finally {
+            em.close();
+        }
+    }
 
 }
