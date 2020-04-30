@@ -39,7 +39,7 @@ public class InternalJokeResourceTest {
     private static String p1, p2;
     private static User u1, u2;
     private static InternalJoke joke1, joke2, joke3;
-    private final static InternalJoke[] JOKE_ARRAY = new InternalJoke[]{joke1, joke2, joke3};
+    private static InternalJoke[] jokeArray;
 
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
@@ -87,7 +87,7 @@ public class InternalJokeResourceTest {
 
             joke1 = new InternalJoke(u1, "First joke of the day");
             joke2 = new InternalJoke(u1, "2nd joke of the day");
-            joke3 = new InternalJoke(u1, "Final joke");
+            joke3 = new InternalJoke(u1, "Final joke", true);
 
             em.persist(userRole);
             em.persist(adminRole);
@@ -101,6 +101,8 @@ public class InternalJokeResourceTest {
         } finally {
             em.close();
         }
+        
+        jokeArray = new InternalJoke[]{joke1, joke2, joke3};
     }
 
     @AfterAll
@@ -207,8 +209,31 @@ public class InternalJokeResourceTest {
     }
 
     @Test
-    public void testGetJokeList_UserLogin() {
+    public void testGetJokeList_UserLogin_Where_NSFW_Active() {
+        User user = u2;
+        if(!user.isNsfwIsActive()){
+            fail("User did not have NSFW active");
+        }
+        login(user.getUserName(), p2);
+
+        InternalJokesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/userjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+
+        int expectedSize = jokeArray.length;
+        assertEquals(expectedSize, result.getJokes().size());
+    }
+
+    @Test
+    public void testGetJokeList_UserLogin_Where_NSFW_Not_Active() {
         User user = u1;
+        if(user.isNsfwIsActive()){
+            fail("User did have NSFW active");
+        }
         login(user.getUserName(), p1);
 
         InternalJokesDTO result = given()
@@ -219,9 +244,16 @@ public class InternalJokeResourceTest {
                 .statusCode(200)
                 .extract().body().as(InternalJokesDTO.class);
 
-        int expectedSize = JOKE_ARRAY.length;
+        int expectedSize = 0;
+        for (InternalJoke joke : jokeArray) {
+            if(!joke.isNsfw()){
+                expectedSize++;
+            }
+        }
+        if(jokeArray.length == expectedSize){
+            fail("Test did not contain any jokes that was NSFW");
+        }
         assertEquals(expectedSize, result.getJokes().size());
-
     }
 
     @Test
@@ -237,7 +269,7 @@ public class InternalJokeResourceTest {
                 .statusCode(200)
                 .extract().body().as(InternalJokesDTO.class);
 
-        int expectedSize = JOKE_ARRAY.length;
+        int expectedSize = jokeArray.length;
         assertEquals(expectedSize, result.getJokes().size());
     }
 
@@ -249,8 +281,7 @@ public class InternalJokeResourceTest {
                 .get("/joke/userjokes").then()
                 .statusCode(403);
     }
-    
-    
+
     // statusCode 204 er korrekt fordi sletningen finder sted, men resultatet ikke returneres til os.
     @Test
     public void testDeleteJokeEndpoint_asAdmin() {
@@ -261,7 +292,7 @@ public class InternalJokeResourceTest {
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
                 .when()
-                .delete("/joke/"+joke3.getId()).then()
+                .delete("/joke/" + joke3.getId()).then()
                 .statusCode(204);
 
         InternalJokesDTO result = given()
@@ -271,11 +302,11 @@ public class InternalJokeResourceTest {
                 .get("/joke/userjokes").then()
                 .statusCode(200)
                 .extract().body().as(InternalJokesDTO.class);
-        
-        int expectedLength = JOKE_ARRAY.length-1;
+
+        int expectedLength = jokeArray.length - 1;
         assertEquals(expectedLength, result.getJokes().size());
     }
-    
+
     @Test
     public void negativeTestDeleteJokeEndpoint_notAdmin() {
         User user = u1; //logged in as a regular user not admin
@@ -285,24 +316,7 @@ public class InternalJokeResourceTest {
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
                 .when()
-                .delete("/joke/"+joke3.getId()).then()
+                .delete("/joke/" + joke3.getId()).then()
                 .statusCode(401);
-    }
-    
-    @Test
-    public void testGetOwnJokes_UserLogin() {
-        User user = u1;
-        login(user.getUserName(), p1);
-
-        InternalJokesDTO result = given()
-                .contentType("application/json")
-                .header("x-access-token", securityToken)
-                .when()
-                .get("/joke/ownjokes").then()
-                .statusCode(200)
-                .extract().body().as(InternalJokesDTO.class);
-
-        int expectedSize = JOKE_ARRAY.length;
-        assertEquals(expectedSize, result.getJokes().size());
     }
 }
