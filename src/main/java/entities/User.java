@@ -74,9 +74,8 @@ public class User implements Serializable {
     public User(String userName, String userPass) {
         this.userName = userName;
         this.userPass = BCrypt.hashpw(userPass, BCrypt.gensalt());
-        this.nsfwIsActive = false;
     }
-    
+
     public User(String userName, String userPass, boolean nsfwIsActive) {
         this.userName = userName;
         this.userPass = BCrypt.hashpw(userPass, BCrypt.gensalt());
@@ -105,10 +104,18 @@ public class User implements Serializable {
 
     public void setRoleList(List<Role> roleList) {
         this.roleList = roleList;
+        for (Role role : roleList) {
+            if (role.getRoleName().contains("admin")) {
+                this.nsfwIsActive = true;
+            }
+        }
     }
 
     public void addRole(Role userRole) {
         roleList.add(userRole);
+        if (userRole.getRoleName().contains("admin")) {
+            this.nsfwIsActive = true;
+        }
     }
 
     public List<InternalJoke> getJokesCreated() {

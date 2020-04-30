@@ -16,6 +16,7 @@ public class InternalJokeDTO {
     private Long id;
     private String createdBy;
     private String jokeContent;
+    private boolean nsfw;
 
     public InternalJokeDTO() {
     }
@@ -24,6 +25,13 @@ public class InternalJokeDTO {
         this.id = id;
         this.createdBy = createdBy;
         this.jokeContent = jokeContent;
+    }
+
+    public InternalJokeDTO(Long id, String createdBy, String jokeContent, boolean nsfw) {
+        this.id = id;
+        this.createdBy = createdBy;
+        this.jokeContent = jokeContent;
+        this.nsfw = nsfw;
     }
 
     public InternalJokeDTO(String createdBy, String jokeContent) {
@@ -63,6 +71,14 @@ public class InternalJokeDTO {
 
     public void setJokeContent(String jokeContent) {
         this.jokeContent = jokeContent;
+    }
+
+    public boolean isNsfw() {
+        return nsfw;
+    }
+
+    public void setNsfw(boolean nsfw) {
+        this.nsfw = nsfw;
     }
 
 }

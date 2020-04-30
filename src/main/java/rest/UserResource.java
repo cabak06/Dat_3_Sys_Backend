@@ -103,6 +103,8 @@ public class UserResource {
     @Path("nsfw")
     public String toggleNSFW(String userData){
         UserDTO newUser = GSON.fromJson(userData, UserDTO.class);
-        return GSON.toJson(facade.updateUser(newUser));
+        String thisuser = securityContext.getUserPrincipal().getName();
+        newUser.setUsername(thisuser);
+        return GSON.toJson(facade.updateUser(newUser))  ;
     }
 }
