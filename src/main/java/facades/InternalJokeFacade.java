@@ -112,6 +112,7 @@ public class InternalJokeFacade {
             User user = em.find(User.class, userName);
             InternalJoke ij = em.find(InternalJoke.class, joke.getId());
             ij.setJokeContent(joke.getJokeContent());
+            ij.setNsfw(joke.isNsfw());
             Date now = new Date();
             ij.setLastEdited(now);
             em.getTransaction().commit();
