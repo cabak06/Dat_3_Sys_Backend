@@ -93,7 +93,7 @@ public class InternalJokeFacade {
         }
     }
     
-    public void deleteUserJoke(long id) {
+    public void deleteUserJokeAsAdmin(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
             InternalJoke ij = em.find(InternalJoke.class, id);
@@ -105,18 +105,35 @@ public class InternalJokeFacade {
         }
     }
     
-    public void editUserJoke(long id, InternalJokeDTO internalJokeDTO) {
+    public InternalJokeDTO editUserJoke(String userName, InternalJokeDTO joke) {
         EntityManager em = emf.createEntityManager();
         try{
             em.getTransaction().begin();
-            InternalJoke ij = em.createQuery("SELECT i FROM InternalJoke i WHERE i.id = :id", InternalJoke.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
-            ij.setJokeContent(internalJokeDTO.getJokeContent());
+            User user = em.find(User.class, userName);
+            InternalJoke ij = em.find(InternalJoke.class, joke.getId());
+            ij.setJokeContent(joke.getJokeContent());
             Date now = new Date();
             ij.setLastEdited(now);
             em.getTransaction().commit();
+            InternalJokeDTO result = new InternalJokeDTO(ij);
+            return result;
         }finally{  
+            em.close();
+        }
+    }
+    
+    public void deleteUserJokeAsUser(String userName, Long id) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            User user = em.find(User.class, userName);
+            InternalJoke ij = em.createQuery("SELECT i FROM InternalJoke i WHERE i.createdBy = :userName AND i.id = :id", InternalJoke.class)
+                .setParameter("userName", user)
+                .setParameter("id", id)
+                .getSingleResult();
+            em.getTransaction().begin();
+            em.remove(ij);
+            em.getTransaction().commit();
+        } finally {
             em.close();
         }
     }

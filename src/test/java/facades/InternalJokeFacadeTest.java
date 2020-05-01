@@ -124,7 +124,7 @@ public class InternalJokeFacadeTest {
 
     @Test
     public void testDeleteJoke() {
-        facade.deleteUserJoke(joke1.getId());
+        facade.deleteUserJokeAsAdmin(joke1.getId());
 
         EntityManager em = emf.createEntityManager();
         try {
@@ -173,6 +173,37 @@ public class InternalJokeFacadeTest {
     @Test
     public void testGetUserJokesBySpecificUser() {
         User user = user1;
-        facade.getUserJokesForSpecificUser(user.getUserName());
+        InternalJokesDTO result = facade.getUserJokesForSpecificUser(user.getUserName());
+        int expectedSize = 2;
+        
+        assertEquals(expectedSize, result.getJokes().size());
+    }
+    
+    @Test
+    public void testDeleteOwnJokeAsUser() {
+        User user = user1;
+        facade.deleteUserJokeAsUser(user.getUserName(), joke1.getId());
+
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<InternalJoke> dbResult = em.createQuery("Select i FROM InternalJoke i", InternalJoke.class).getResultList();
+            assertEquals(dbResult.size(), jokes.length - 1);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            em.close();
+        }
+    }
+    
+    @Test
+    public void testEditOwnJokesAsSpecificUser() {
+        User user = user1;
+        InternalJoke joke = joke2;
+        InternalJokeDTO ij = new InternalJokeDTO(joke);
+        ij.setJokeContent("mulallala");
+        InternalJokeDTO result = facade.editUserJoke(user.getUserName(), ij);
+        
+        assertTrue(result.getJokeContent().equals(ij.getJokeContent()));
+        assertFalse(result.getJokeContent().equals(joke.getJokeContent()));
     }
 }

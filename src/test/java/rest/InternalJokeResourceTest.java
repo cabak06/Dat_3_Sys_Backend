@@ -22,6 +22,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeAll;
@@ -318,5 +319,81 @@ public class InternalJokeResourceTest {
                 .when()
                 .delete("/joke/" + joke3.getId()).then()
                 .statusCode(401);
+    }
+    
+    @Test
+    public void testGetUserJokesBySpecificUser() {
+        User user = u1;
+        login(user.getUserName(), p1);
+        
+        InternalJokesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken) 
+                .when()
+                .get("/joke/ownjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+        
+        int expectedLength = jokeArray.length;
+        assertEquals(expectedLength, result.getJokes().size());
+    }
+    
+    @Test
+    public void testDeleteOwnJokeEndpoint_asUser() {
+        User user = u1;
+        login(user.getUserName(), p1);
+        
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/joke/userdelete/" + joke3.getId()).then()
+                .statusCode(204);
+
+        InternalJokesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/userjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+
+        int expectedLength = jokeArray.length - 1;
+        assertEquals(expectedLength, result.getJokes().size());
+    }
+    
+    @Test
+    public void testEditUserJokesBySpecificUser() {
+        User user = u1;
+        login(user.getUserName(), p1);
+        InternalJokeDTO expectedResult = new InternalJokeDTO(joke1);
+        expectedResult.setJokeContent("hahaha");
+        
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken) 
+                .body(expectedResult)
+                .when()
+                .put("/joke/editjoke").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokeDTO.class);
+        
+        InternalJokesDTO results = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/userjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+
+        InternalJokeDTO result = null;
+        for (InternalJokeDTO joke : results.getJokes()) {
+            if (joke.getId().equals(expectedResult.getId())) {
+                result = joke;
+                break;
+            }
+        }
+        assertNotNull(result);
+        assertEquals(expectedResult.getJokeContent(), result.getJokeContent());
     }
 }

@@ -88,16 +88,28 @@ public class InternalJokeResource {
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
     public void deleteUserJokesAsAdmin(@PathParam("id")long id) {
-    FACADE.deleteUserJoke(id);
+        FACADE.deleteUserJokeAsAdmin(id);
+    }
+    
+    @DELETE
+    @Path("/userdelete/{id}")
+    @RolesAllowed({"user"})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    public void deleteUserJokeAsUser(@PathParam("id")long id) {
+        String thisuser = securityContext.getUserPrincipal().getName();
+        FACADE.deleteUserJokeAsUser(thisuser, id);
     }
     
     @PUT
-    @Path("/{id}")
+    @Path("/editjoke")
     @RolesAllowed({"user"})
     @Produces({MediaType.APPLICATION_JSON})
-    public String editOwnUserJokesAsUser(String joke, @PathParam("id")long id) {
-    InternalJokeDTO editedJoke = GSON.fromJson(joke, InternalJokeDTO.class);
-    FACADE.editUserJoke(id, editedJoke);
-    return GSON.toJson(editedJoke);
+    public String editOwnUserJokesAsUser(String joke) {
+        String thisuser = securityContext.getUserPrincipal().getName();
+        
+        InternalJokeDTO editedJoke = GSON.fromJson(joke, InternalJokeDTO.class);
+        FACADE.editUserJoke(thisuser, editedJoke);
+        return GSON.toJson(editedJoke);
     }
 }
