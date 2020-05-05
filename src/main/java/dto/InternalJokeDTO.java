@@ -6,6 +6,7 @@
 package dto;
 
 import entities.InternalJoke;
+import java.util.Date;
 
 /**
  *
@@ -17,7 +18,8 @@ public class InternalJokeDTO {
     private String createdBy;
     private String jokeContent;
     private boolean nsfw;
-
+    private Date createdDate;
+    
     public InternalJokeDTO() {
     }
 
@@ -25,15 +27,16 @@ public class InternalJokeDTO {
         this.id = id;
         this.createdBy = createdBy;
         this.jokeContent = jokeContent;
+      
     }
 
     public InternalJokeDTO(Long id, String createdBy, String jokeContent, boolean nsfw) {
         this.id = id;
         this.createdBy = createdBy;
         this.jokeContent = jokeContent;
-        this.nsfw = nsfw;
+        this.nsfw = nsfw;      
     }
-
+    
     public InternalJokeDTO(String createdBy, String jokeContent) {
         this.createdBy = createdBy;
         this.jokeContent = jokeContent;
@@ -48,7 +51,17 @@ public class InternalJokeDTO {
         this.createdBy = joke.getCreatedBy().getUserName();
         this.jokeContent = joke.getJokeContent();
         this.nsfw = joke.isNsfw();
+        this.createdDate = joke.getCreatedDate();
     }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+    
 
     public Long getId() {
         return id;
