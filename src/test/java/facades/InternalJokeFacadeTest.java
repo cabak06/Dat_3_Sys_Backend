@@ -39,7 +39,7 @@ public class InternalJokeFacadeTest {
                 "dev",
                 "ax2",
                 EMF_Creator.Strategy.CREATE);
-        facade = InternalJokeFacade.getFacadeExample(emf);
+        facade = InternalJokeFacade.getJokeFacade(emf);
     }
 
     /*   **** HINT **** 
@@ -51,7 +51,7 @@ public class InternalJokeFacadeTest {
     @BeforeAll
     public static void setUpClassV2() {
         emf = EMF_Creator.createEntityManagerFactory(DbSelector.TEST, Strategy.DROP_AND_CREATE);
-        facade = InternalJokeFacade.getFacadeExample(emf);
+        facade = InternalJokeFacade.getJokeFacade(emf);
     }
 
     @AfterAll

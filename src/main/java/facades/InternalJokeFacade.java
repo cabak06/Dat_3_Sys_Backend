@@ -20,7 +20,7 @@ public class InternalJokeFacade {
         this.uf = UserFacade.getUserFacade(emf);
     }
 
-    public static InternalJokeFacade getFacadeExample(EntityManagerFactory _emf) {
+    public static InternalJokeFacade getJokeFacade(EntityManagerFactory _emf) {
         if (instance == null) {
             emf = _emf;
             instance = new InternalJokeFacade();
