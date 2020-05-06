@@ -128,4 +128,17 @@ public class InternalMemeFacadeTest {
             assertFalse(meme.isNsfw());
         }
     }
+    
+    @Test
+    public void testAddMeme() {
+        InternalMemeDTO memeDTO = new InternalMemeDTO(user1.getUserName(), "Funny stuff", "haha");
+        Long expectedId = highestId + 1;
+
+        InternalMemeDTO result = facade.addMeme(memeDTO);
+
+        assertTrue(result.getCreatedBy().equals(memeDTO.getCreatedBy()));
+        assertTrue(result.getPicturePath().equals(memeDTO.getPicturePath()));
+        assertTrue(result.getTitle().equals(memeDTO.getTitle()));
+        assertEquals(expectedId, result.getId());
+    }
 }

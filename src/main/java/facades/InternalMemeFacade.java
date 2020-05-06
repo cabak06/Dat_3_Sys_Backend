@@ -60,4 +60,20 @@ public class InternalMemeFacade {
             em.close();
         }
     }
+    
+    public InternalMemeDTO addMeme(InternalMemeDTO meme) {
+        User user = uf.getUser(meme.getCreatedBy());
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            InternalMeme mj = new InternalMeme(user, meme.getPicturePath(), meme.getTitle(), meme.isNsfw());
+            em.getTransaction().begin();
+            em.persist(mj);
+            em.getTransaction().commit();
+            InternalMemeDTO newMeme = new InternalMemeDTO(mj);
+            return newMeme;
+        } finally {
+            em.close();
+        }
+    }
 }

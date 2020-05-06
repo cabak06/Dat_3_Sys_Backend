@@ -2,12 +2,15 @@ package rest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dto.InternalMemeDTO;
 import dto.InternalMemesDTO;
 import utils.EMF_Creator;
 import facades.InternalMemeFacade;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -51,5 +54,18 @@ public class InternalMemeResource {
         String thisuser = securityContext.getUserPrincipal().getName();
         InternalMemesDTO allMemes = FACADE.getUserMemes(thisuser);
         return GSON.toJson(allMemes);
+    }
+    
+    @POST
+    @RolesAllowed("user")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    public String addMeme(String meme) {
+        InternalMemeDTO memeAdd = GSON.fromJson(meme, InternalMemeDTO.class);
+        String thisuser = securityContext.getUserPrincipal().getName();
+        memeAdd.setCreatedBy(thisuser);
+
+        memeAdd = FACADE.addMeme(memeAdd);
+        return GSON.toJson(memeAdd);
     }
 }

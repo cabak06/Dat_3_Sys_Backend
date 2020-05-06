@@ -3,6 +3,7 @@ package rest;
 import dto.ApiDTO;
 import dto.InternalJokeDTO;
 import dto.InternalJokesDTO;
+import dto.InternalMemeDTO;
 import dto.InternalMemesDTO;
 import entities.InternalJoke;
 import entities.InternalMeme;
@@ -146,7 +147,7 @@ public class InternalMemeResourceTest {
     private void logOut() {
         securityToken = null;
     }
-
+    
     @Test
     public void testGetMemeList_UserLogin_Where_NSFW_Active() {
         User user = u2;
@@ -219,5 +220,36 @@ public class InternalMemeResourceTest {
                 .when()
                 .get("/meme/usermemes").then()
                 .statusCode(403);
+    }
+    
+    @Test
+    public void testAddMemeEndpoint() {
+        User user = u1;
+
+        InternalMemeDTO newMeme = new InternalMemeDTO("Hahafun.com");
+        login(user.getUserName(), p1);
+
+        InternalMemeDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(newMeme)
+                .when()
+                .post("/meme").then()
+                .statusCode(200)
+                .extract().body().as(InternalMemeDTO.class);
+
+        assertTrue(result.getCreatedBy().equals(user.getUserName()));
+        assertTrue(result.getPicturePath().equals(newMeme.getPicturePath()));
+
+        EntityManager em = emf.createEntityManager();
+        try {
+            InternalMeme dbResult = em.find(InternalMeme.class, result.getId());
+            assertTrue(result.getCreatedBy().equals(dbResult.getCreatedBy().getUserName()));
+            assertTrue(result.getPicturePath().equals(dbResult.getPicturePath()));
+        } catch (Exception e) {
+            fail("Issues getting results from database");
+        } finally {
+            em.close();
+        }
     }
 }
