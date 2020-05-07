@@ -6,6 +6,7 @@ import entities.User;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import errorhandling.AuthenticationException;
+import errorhandling.InvalidInputException;
 import java.util.Objects;
 
 /**
@@ -72,7 +73,7 @@ public class UserFacade {
             em.close();
         }
 
-        //Check for password critiria
+        //Check for password criteria
         String password = newUser.getPassword();
         if (Objects.nonNull(password)) {
             boolean isWithinLengthRange = password.length() > 4 && password.length() < 21;
@@ -121,5 +122,39 @@ public class UserFacade {
             em.close();
         }
     }
-
+    
+    public UserDTO updateUserPassword(UserDTO user) throws InvalidInputException{
+        EntityManager em = emf.createEntityManager();
+        try{
+            em.getTransaction().begin();
+            User dbUser = em.find(User.class, user.getUsername());
+            boolean correctPassword = dbUser.verifyPassword(user.getPassword());
+            if (correctPassword) {
+                String password = user.getNewPassword();
+                
+                boolean isWithinLengthRange = password.length() > 4 && password.length() < 21;
+                boolean hasUppercase = !password.equals(password.toLowerCase());
+                boolean hasLowercase = !password.equals(password.toUpperCase());
+                boolean hasNumber = false;
+                for (char letter : password.toCharArray()) {
+                    if (Character.isDigit(letter)) {
+                        hasNumber = true;
+                        break;
+                    }
+                }
+                if(isWithinLengthRange && hasUppercase && hasLowercase && hasNumber){
+                    dbUser.setUserPass(user.getNewPassword());
+                    em.getTransaction().commit();
+                    return new UserDTO(dbUser);
+                }
+            }
+            else {
+                throw new InvalidInputException("Password is invalid. Need 1 upper-case letter, 1 lower-case letter, at least one number "
+                        + "and needs to be between 5 and 20 characters.");
+            }
+        } finally {
+            em.close();
+        }
+        return null;
+    }
 }
