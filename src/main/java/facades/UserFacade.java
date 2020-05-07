@@ -86,7 +86,7 @@ public class UserFacade {
                     break;
                 }
             }
-            if(!isWithinLengthRange || !hasUppercase || !hasLowercase || !hasNumber){
+            if (!isWithinLengthRange || !hasUppercase || !hasLowercase || !hasNumber) {
                 return "Password in invalid. Need 1 upper- and lower-case, one number, "
                         + "and needs to be between 5 and 20 characters.";
             }
@@ -96,7 +96,7 @@ public class UserFacade {
 
         //Create user
         em = emf.createEntityManager();
-        try{
+        try {
             em.getTransaction().begin();
             Role userRole = em.find(Role.class, "user");
             User user = new User(newUser.getUsername(), newUser.getPassword());
@@ -106,13 +106,13 @@ public class UserFacade {
         } finally {
             em.close();
         }
-        
+
         return "";
     }
-    
-    public UserDTO updateUser(UserDTO user){
+
+    public UserDTO updateUser(UserDTO user) {
         EntityManager em = emf.createEntityManager();
-        try{
+        try {
             em.getTransaction().begin();
             User dbUser = em.find(User.class, user.getUsername());
             dbUser.setNsfwIsActive(user.isNsfwActive());
@@ -122,39 +122,39 @@ public class UserFacade {
             em.close();
         }
     }
-    
-    public UserDTO updateUserPassword(UserDTO user) throws InvalidInputException{
+
+    public UserDTO updateUserPassword(UserDTO user) throws InvalidInputException {
         EntityManager em = emf.createEntityManager();
-        try{
+        try {
             em.getTransaction().begin();
             User dbUser = em.find(User.class, user.getUsername());
             boolean correctPassword = dbUser.verifyPassword(user.getPassword());
-            if (correctPassword) {
-                String password = user.getNewPassword();
-                
-                boolean isWithinLengthRange = password.length() > 4 && password.length() < 21;
-                boolean hasUppercase = !password.equals(password.toLowerCase());
-                boolean hasLowercase = !password.equals(password.toUpperCase());
-                boolean hasNumber = false;
-                for (char letter : password.toCharArray()) {
-                    if (Character.isDigit(letter)) {
-                        hasNumber = true;
-                        break;
-                    }
-                }
-                if(isWithinLengthRange && hasUppercase && hasLowercase && hasNumber){
-                    dbUser.setUserPass(user.getNewPassword());
-                    em.getTransaction().commit();
-                    return new UserDTO(dbUser);
+            if (!correctPassword) {
+                throw new InvalidInputException("Old password is incorrect!");
+            }
+            String password = user.getNewPassword();
+
+            boolean isWithinLengthRange = password.length() > 4 && password.length() < 21;
+            boolean hasUppercase = !password.equals(password.toLowerCase());
+            boolean hasLowercase = !password.equals(password.toUpperCase());
+            boolean hasNumber = false;
+            for (char letter : password.toCharArray()) {
+                if (Character.isDigit(letter)) {
+                    hasNumber = true;
+                    break;
                 }
             }
-            else {
+            if (isWithinLengthRange && hasUppercase && hasLowercase && hasNumber) {
+                dbUser.setUserPass(user.getNewPassword());
+                em.getTransaction().commit();
+                return new UserDTO(dbUser);
+            } else {
                 throw new InvalidInputException("Password is invalid. Need 1 upper-case letter, 1 lower-case letter, at least one number "
                         + "and needs to be between 5 and 20 characters.");
             }
+
         } finally {
             em.close();
         }
-        return null;
     }
 }
