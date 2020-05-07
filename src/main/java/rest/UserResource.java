@@ -8,6 +8,8 @@ package rest;
 import com.google.gson.Gson;
 import dto.UserDTO;
 import entities.User;
+import errorhandling.AuthenticationException;
+import errorhandling.InvalidInputException;
 import facades.UserFacade;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
@@ -107,5 +109,16 @@ public class UserResource {
         String thisuser = securityContext.getUserPrincipal().getName();
         newUser.setUsername(thisuser);
         return GSON.toJson(facade.updateUser(newUser))  ;
+    }
+    
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("password")
+    @RolesAllowed("user")
+    public String updateUserPassword(String userData) throws InvalidInputException{
+        UserDTO user = GSON.fromJson(userData, UserDTO.class);
+        String thisuser = securityContext.getUserPrincipal().getName();
+        user.setUsername(thisuser);
+        return GSON.toJson(facade.updateUserPassword(user));
     }
 }

@@ -22,6 +22,7 @@ public class ApplicationConfig extends Application {
         resources.add(cors.CorsRequestFilter.class);
         resources.add(cors.CorsResponseFilter.class);
         resources.add(errorhandling.GenericExceptionMapper.class);
+        resources.add(errorhandling.InvalidInputExceptionMapper.class);
         resources.add(org.glassfish.jersey.server.wadl.internal.WadlResource.class);
         resources.add(rest.ExternalJokeResource.class);
         resources.add(rest.ExternalMemeResource.class);
