@@ -59,7 +59,7 @@ public class InternalMemeResource {
         String thisuser = securityContext.getUserPrincipal().getName();
         memeAdd.setCreatedBy(thisuser);
 
-        memeAdd = FACADE.addMeme(memeAdd);
-        return GSON.toJson(memeAdd);
+        InternalMemeDTO newMeme = FACADE.addMeme(memeAdd);
+        return GSON.toJson(newMeme);
     }
 }

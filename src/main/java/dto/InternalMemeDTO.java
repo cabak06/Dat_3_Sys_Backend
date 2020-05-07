@@ -49,6 +49,12 @@ public class InternalMemeDTO {
         this.nsfw = meme.isNsfw();
     }
 
+    public InternalMemeDTO(String picturePath, String title, boolean nsfw) {
+        this.picturePath = picturePath;
+        this.title = title;
+        this.nsfw = nsfw;
+    }
+    
     public Long getId() {
         return id;
     }
