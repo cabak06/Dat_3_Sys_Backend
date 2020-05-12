@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import errorhandling.AuthenticationException;
 import errorhandling.InvalidInputException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.TypedQuery;
@@ -57,8 +58,28 @@ public class UserFacade {
         EntityManager em = emf.createEntityManager();
         try {
             TypedQuery<User> query = em.createQuery("SELECT u FROM User u", User.class);
+            Role admin = em.find(Role.class, "admin");
             List<User> dbList = query.getResultList();
             UsersDTO result = new UsersDTO(dbList);
+            return result;
+        } finally {
+            em.close();
+        }
+    }
+    
+    public UsersDTO getNonAdminUsers() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u", User.class);
+            Role admin = em.find(Role.class, "admin");
+            List<User> dbList = query.getResultList();
+            List<User> resultList = new ArrayList();
+            for (User user : dbList) {
+                if(!user.getRoleList().contains(admin)){
+                    resultList.add(user);
+                }
+            }
+            UsersDTO result = new UsersDTO(resultList);
             return result;
         } finally {
             em.close();

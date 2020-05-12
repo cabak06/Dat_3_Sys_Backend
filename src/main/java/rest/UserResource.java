@@ -68,6 +68,15 @@ public class UserResource {
         UsersDTO allJokes = facade.getUsers();
         return GSON.toJson(allJokes);
     }
+    
+    @GET
+    @Path("allNonAdminUsers")
+    @RolesAllowed({"admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAllNonAdminUsers() {
+        UsersDTO allJokes = facade.getNonAdminUsers();
+        return GSON.toJson(allJokes);
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
