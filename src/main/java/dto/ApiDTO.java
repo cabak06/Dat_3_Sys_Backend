@@ -4,18 +4,23 @@ import java.util.Objects;
 
 public class ApiDTO {
 
+    private final static String COULD_NOT_FETCH = "Could not fetch this data";
+
     private String chuckJoke;
     private String chuckJokeID;
     private final String chuckURL = ChuckJokeDTO.getRANDOM_URL();
     private String dadJoke;
     private String dadJokeID;
     private final String dadURL = DadJokeDTO.getRANDOM_URL();
-    private final static String COULD_NOT_FETCH = "Could not fetch this data";
+    private String jokerJoke;
+    private String jokerID;
+    private boolean jokerNSFW;
+    private final String jokerURL = JokerDTO.getRANDOM_URL();
 
     public ApiDTO() {
     }
 
-    public ApiDTO(ChuckJokeDTO chuck, DadJokeDTO dad) {
+    public ApiDTO(ChuckJokeDTO chuck, DadJokeDTO dad, JokerDTO joker) {
         if (!Objects.isNull(chuck)) {
             this.chuckJoke = chuck.getValue();
             this.chuckJokeID = chuck.getId();
@@ -29,6 +34,15 @@ public class ApiDTO {
         } else {
             this.dadJoke = COULD_NOT_FETCH;
             this.dadJokeID = COULD_NOT_FETCH;
+        }
+        if(!Objects.isNull(joker)){
+            this.jokerJoke = joker.getJoke();
+            this.jokerID = "https://www.jokerthewizard.dk/jokesapp/jokes/" + joker.getId();
+            this.jokerNSFW = joker.isNsfw();
+        } else {
+            this.jokerJoke = COULD_NOT_FETCH;
+            this.jokerID = COULD_NOT_FETCH;
+            this.jokerNSFW = false;
         }
     }
 
