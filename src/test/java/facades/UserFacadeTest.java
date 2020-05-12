@@ -54,7 +54,7 @@ public class UserFacadeTest {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.createNamedQuery("Users.deleteAllRows").executeUpdate();
+            em.createNamedQuery("users.deleteAllRows").executeUpdate();
             user1 = new User("kim", "Password123", true);
             user2 = new User("larsen", "VerySecureP4ssword");
             em.persist(user1);
@@ -71,8 +71,8 @@ public class UserFacadeTest {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.createNamedQuery("Users.deleteAllRows").executeUpdate();
-            em.createQuery("DELETE FROM Users").executeUpdate();
+            em.createNamedQuery("users.deleteAllRows").executeUpdate();
+            em.createQuery("DELETE FROM User").executeUpdate();
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -85,7 +85,7 @@ public class UserFacadeTest {
 
         EntityManager em = emf.createEntityManager();
         try {
-            List<User> dbResult = em.createQuery("Select u FROM Users u", User.class).getResultList();
+            List<User> dbResult = em.createQuery("Select u FROM User u", User.class).getResultList();
             assertEquals(dbResult.size(), users.length - 1);
         } catch (Exception e) {
             fail(e.getMessage());

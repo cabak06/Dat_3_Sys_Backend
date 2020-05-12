@@ -2,10 +2,8 @@ package rest;
 
 import dto.UserDTO;
 import dto.UsersDTO;
-import entities.InternalJoke;
 import entities.User;
 import entities.Role;
-
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import io.restassured.parsing.Parser;
@@ -34,9 +32,9 @@ public class UserResourceTest {
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
     
-    private static User user, admin, both, u1, u2;
+    private static User user, admin, both;
     private static String p1, p2;
-    private final static User[] USER_LIST = new User[]{user, u1, u2, admin, both};
+    private final static User[] USER_LIST = new User[]{user, admin, both};
 
     static HttpServer startServer() {
         ResourceConfig rc = ResourceConfig.forApplication(new ApplicationConfig());
@@ -77,11 +75,7 @@ public class UserResourceTest {
             Role userRole = new Role("user");
             Role adminRole = new Role("admin");
             user = new User("user", p1);
-            u1 = new User("Giraf", "Pass123");
-            u2 = new User("elefant", "123456");
             user.addRole(userRole);
-            u1.addRole(userRole);
-            u2.addRole(userRole);
             admin = new User("admin", p2);
             admin.addRole(adminRole);
             both = new User("user_admin", "test");
@@ -324,14 +318,14 @@ public class UserResourceTest {
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
                 .when()
-                .delete("/user/" + u2.getUserName()).then()
+                .delete("/user/" + user.getUserName()).then()
                 .statusCode(204);
 
         UsersDTO result = given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
                 .when()
-                .get("/user/all").then()
+                .get("/user/allUsers").then()
                 .statusCode(200)
                 .extract().body().as(UsersDTO.class);
 

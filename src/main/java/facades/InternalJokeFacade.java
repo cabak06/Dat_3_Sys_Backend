@@ -44,7 +44,7 @@ public class InternalJokeFacade {
     }
 
     public InternalJokeDTO addJoke(InternalJokeDTO joke) {
-        User user = uf.getUser(joke.getCreatedBy());
+        User user = uf.getSpecificUser(joke.getCreatedBy());
         EntityManager em = emf.createEntityManager();
 
         try {

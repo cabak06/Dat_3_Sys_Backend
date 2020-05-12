@@ -2,6 +2,7 @@ package rest;
 
 import com.google.gson.Gson;
 import dto.UserDTO;
+import dto.UsersDTO;
 import entities.User;
 import errorhandling.AuthenticationException;
 import errorhandling.InvalidInputException;
@@ -57,6 +58,15 @@ public class UserResource {
         } finally {
             em.close();
         }
+    }
+    
+    @GET
+    @Path("allUsers")
+    @RolesAllowed({"admin"})
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAllUsers() {
+        UsersDTO allJokes = facade.getUsers();
+        return GSON.toJson(allJokes);
     }
 
     @GET
@@ -117,8 +127,6 @@ public class UserResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed({"admin"})
-    @Produces({MediaType.APPLICATION_JSON})
-    @Consumes({MediaType.APPLICATION_JSON})
     public void deleteUserAsAdmin(@PathParam("id")String userName) {
         facade.deleteUser(userName);
     }

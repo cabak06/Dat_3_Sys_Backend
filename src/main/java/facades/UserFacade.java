@@ -1,13 +1,16 @@
 package facades;
 
 import dto.UserDTO;
+import dto.UsersDTO;
 import entities.Role;
 import entities.User;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import errorhandling.AuthenticationException;
 import errorhandling.InvalidInputException;
+import java.util.List;
 import java.util.Objects;
+import javax.persistence.TypedQuery;
 
 public class UserFacade {
 
@@ -39,7 +42,7 @@ public class UserFacade {
         return user;
     }
 
-    public User getUser(String username) {
+    public User getSpecificUser(String username) {
         EntityManager em = emf.createEntityManager();
         User user;
         try {
@@ -48,6 +51,18 @@ public class UserFacade {
             em.close();
         }
         return user;
+    }
+    
+    public UsersDTO getUsers() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u", User.class);
+            List<User> dbList = query.getResultList();
+            UsersDTO result = new UsersDTO(dbList);
+            return result;
+        } finally {
+            em.close();
+        }
     }
 
     public String createUser(UserDTO newUser) {
@@ -151,8 +166,8 @@ public class UserFacade {
     public void deleteUser(String userName) {
         EntityManager em = emf.createEntityManager();
         try {
-            User u = em.find(User.class, userName);
             em.getTransaction().begin();
+            User u = em.find(User.class, userName);
             em.remove(u);
             em.getTransaction().commit();
         } finally {
