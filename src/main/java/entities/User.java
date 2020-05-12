@@ -43,7 +43,19 @@ public class User implements Serializable {
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     private List<InternalJoke> jokesCreated = new ArrayList();
+    
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<InternalJoke> favoriteJokes = new ArrayList();
 
+    public List<InternalJoke> getFavoriteJokes() {
+        return favoriteJokes;
+    }
+
+    public void setFavoriteJokes(List<InternalJoke> favoriteJokes) {
+        this.favoriteJokes = favoriteJokes;
+    }
+ 
+    
     private boolean nsfwIsActive = false;
 
     public List<String> getRolesAsStrings() {
