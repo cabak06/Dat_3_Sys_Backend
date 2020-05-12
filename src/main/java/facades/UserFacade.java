@@ -9,9 +9,6 @@ import errorhandling.AuthenticationException;
 import errorhandling.InvalidInputException;
 import java.util.Objects;
 
-/**
- * @author lam@cphbusiness.dk
- */
 public class UserFacade {
 
     private static EntityManagerFactory emf;
@@ -20,11 +17,6 @@ public class UserFacade {
     private UserFacade() {
     }
 
-    /**
-     *
-     * @param _emf
-     * @return the instance of this facade.
-     */
     public static UserFacade getUserFacade(EntityManagerFactory _emf) {
         if (instance == null) {
             emf = _emf;
@@ -33,8 +25,6 @@ public class UserFacade {
         return instance;
     }
 
-    /* used to search for a user and throws an exception if user either doesn't
-    exist or the values are wrong */
     public User getVeryfiedUser(String username, String password) throws AuthenticationException {
         EntityManager em = emf.createEntityManager();
         User user;
@@ -153,6 +143,18 @@ public class UserFacade {
                         + "and needs to be between 5 and 20 characters.");
             }
 
+        } finally {
+            em.close();
+        }
+    }
+    
+    public void deleteUser(String userName) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            User u = em.find(User.class, userName);
+            em.getTransaction().begin();
+            em.remove(u);
+            em.getTransaction().commit();
         } finally {
             em.close();
         }

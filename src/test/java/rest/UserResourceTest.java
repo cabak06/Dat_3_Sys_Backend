@@ -1,6 +1,7 @@
 package rest;
 
 import dto.UserDTO;
+import dto.UsersDTO;
 import entities.InternalJoke;
 import entities.User;
 import entities.Role;
@@ -28,14 +29,14 @@ public class UserResourceTest {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
-    private static InternalJoke r1, r2;
 
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
     
-    private static User user, admin, both;
-    private final static User[] USER_LIST = new User[]{user, admin, both};
+    private static User user, admin, both, u1, u2;
+    private static String p1, p2;
+    private final static User[] USER_LIST = new User[]{user, u1, u2, admin, both};
 
     static HttpServer startServer() {
         ResourceConfig rc = ResourceConfig.forApplication(new ApplicationConfig());
@@ -75,9 +76,13 @@ public class UserResourceTest {
 
             Role userRole = new Role("user");
             Role adminRole = new Role("admin");
-            user = new User("user", "test");
+            user = new User("user", p1);
+            u1 = new User("Giraf", "Pass123");
+            u2 = new User("elefant", "123456");
             user.addRole(userRole);
-            admin = new User("admin", "test");
+            u1.addRole(userRole);
+            u2.addRole(userRole);
+            admin = new User("admin", p2);
             admin.addRole(adminRole);
             both = new User("user_admin", "test");
             both.addRole(userRole);
@@ -308,6 +313,29 @@ public class UserResourceTest {
             .statusCode(200)
             .body("count", equalTo(expectedCount));
   }
+  
+  @Test
+    public void testDeleteUserEndpoint_asAdmin() {
+        User administrator = admin;
+        String password = p2;
+        login(administrator.getUserName(), password);
 
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/user/" + u2.getUserName()).then()
+                .statusCode(204);
 
+        UsersDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/user/all").then()
+                .statusCode(200)
+                .extract().body().as(UsersDTO.class);
+
+        int expectedLength = USER_LIST.length - 1;
+        assertEquals(expectedLength, result.getUsers().size());
+    }
 }
