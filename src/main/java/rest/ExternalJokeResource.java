@@ -79,6 +79,7 @@ public class ExternalJokeResource {
             ChuckJokeDTO chuck = GSON.fromJson(fetched[0], ChuckJokeDTO.class);
             DadJokeDTO dad = GSON.fromJson(fetched[1], DadJokeDTO.class);
             JokerDTO joker = GSON.fromJson(fetched[2], JokerDTO.class);
+            joker.fixJoke();
             
             ApiDTO apis = new ApiDTO(chuck, dad, joker);
             return GSON.toJson(apis);

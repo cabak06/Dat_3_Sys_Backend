@@ -18,6 +18,11 @@ public class JokerDTO {
     public JokerDTO() {
     }
 
+    public void fixJoke() {
+        String fixedJoke = joke.replaceAll("â€™", "'");
+        setJoke(fixedJoke);
+    }
+
     public String getCategory() {
         return category;
     }
