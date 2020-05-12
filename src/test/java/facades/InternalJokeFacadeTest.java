@@ -96,7 +96,6 @@ public class InternalJokeFacadeTest {
             em.getTransaction().begin();
             em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
             em.createQuery("DELETE FROM User").executeUpdate();
-
             em.getTransaction().commit();
         } finally {
             em.close();

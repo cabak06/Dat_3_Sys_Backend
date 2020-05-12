@@ -20,6 +20,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 @Entity
 @Table(name = "users")
+@NamedQuery(name = "users.deleteAllRows", query = "DELETE from User")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -85,6 +86,8 @@ public class User implements Serializable {
     public String getUserName() {
         return userName;
     }
+    
+    
 
     public void setUserName(String userName) {
         this.userName = userName;
@@ -133,5 +136,4 @@ public class User implements Serializable {
     public void setNsfwIsActive(boolean nsfwIsActive) {
         this.nsfwIsActive = nsfwIsActive;
     }
-
 }
