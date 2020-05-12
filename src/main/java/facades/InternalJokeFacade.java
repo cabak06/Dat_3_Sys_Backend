@@ -44,7 +44,7 @@ public class InternalJokeFacade {
     }
 
     public InternalJokeDTO addJoke(InternalJokeDTO joke) {
-        User user = uf.getUser(joke.getCreatedBy());
+        User user = uf.getSpecificUser(joke.getCreatedBy());
         EntityManager em = emf.createEntityManager();
 
         try {
@@ -105,6 +105,22 @@ public class InternalJokeFacade {
         }
     }
     
+    public void deleteUserJokeAsUser(String userName, Long id) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            User user = em.find(User.class, userName);
+            InternalJoke ij = em.createQuery("SELECT i FROM InternalJoke i WHERE i.createdBy = :userName AND i.id = :id", InternalJoke.class)
+                .setParameter("userName", user)
+                .setParameter("id", id)
+                .getSingleResult();
+            em.getTransaction().begin();
+            em.remove(ij);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+    }
+    
     public InternalJokeDTO editUserJoke(String userName, InternalJokeDTO joke) {
         EntityManager em = emf.createEntityManager();
         try{
@@ -122,25 +138,10 @@ public class InternalJokeFacade {
             em.close();
         }
     }
-    
-    public void deleteUserJokeAsUser(String userName, Long id) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            User user = em.find(User.class, userName);
-            InternalJoke ij = em.createQuery("SELECT i FROM InternalJoke i WHERE i.createdBy = :userName AND i.id = :id", InternalJoke.class)
-                .setParameter("userName", user)
-                .setParameter("id", id)
-                .getSingleResult();
-            em.getTransaction().begin();
-            em.remove(ij);
-            em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
-    }
+
 
     public InternalJokeDTO addJokeToFavoriteList(String username, Long id) {
-        User user = uf.getUser(username);
+        User user = uf.getSpecificUser(username);
         EntityManager em = emf.createEntityManager();
 
         try {
@@ -157,9 +158,10 @@ public class InternalJokeFacade {
     }
 
     public InternalJokesDTO getUserFavorites(String username) {
-        User user = uf.getUser(username);
+        User user = uf.getSpecificUser(username);
         InternalJokesDTO results = new InternalJokesDTO(user.getFavoriteJokes());
         return results;
     }
+
 
 }

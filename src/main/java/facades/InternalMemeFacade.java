@@ -62,7 +62,7 @@ public class InternalMemeFacade {
     }
     
     public InternalMemeDTO addMeme(InternalMemeDTO meme) {
-        User user = uf.getUser(meme.getCreatedBy());
+        User user = uf.getSpecificUser(meme.getCreatedBy());
         EntityManager em = emf.createEntityManager();
 
         try {

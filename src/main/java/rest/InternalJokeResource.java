@@ -97,7 +97,7 @@ public class InternalJokeResource {
     @RolesAllowed({"user"})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
-    public void deleteUserJokeAsUser(@PathParam("id")long id) {
+    public void deleteUserJokeAsUser(@PathParam("id")Long id) {
         String thisuser = securityContext.getUserPrincipal().getName();
         FACADE.deleteUserJokeAsUser(thisuser, id);
     }

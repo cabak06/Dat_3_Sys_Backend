@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dto.ChuckJokeDTO;
 import dto.DadJokeDTO;
 import dto.ApiDTO;
+import dto.JokerDTO;
 import entities.User;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ public class ExternalJokeResource {
         String[] fetchStrings = new String[]{
             ChuckJokeDTO.getRANDOM_URL(),
             DadJokeDTO.getRANDOM_URL(),
+            JokerDTO.getRANDOM_URL()
         };
         String[] fetched = new String[fetchStrings.length];
         ExecutorService workingJack = Executors.newFixedThreadPool(fetchStrings.length);
@@ -76,8 +78,10 @@ public class ExternalJokeResource {
 
             ChuckJokeDTO chuck = GSON.fromJson(fetched[0], ChuckJokeDTO.class);
             DadJokeDTO dad = GSON.fromJson(fetched[1], DadJokeDTO.class);
+            JokerDTO joker = GSON.fromJson(fetched[2], JokerDTO.class);
+            joker.fixJoke();
             
-            ApiDTO apis = new ApiDTO(chuck, dad);
+            ApiDTO apis = new ApiDTO(chuck, dad, joker);
             return GSON.toJson(apis);
         } catch (InterruptedException ex) {
             Logger.getLogger(ExternalJokeResource.class.getName()).log(Level.SEVERE, null, ex);

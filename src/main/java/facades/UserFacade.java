@@ -1,17 +1,18 @@
 package facades;
 
 import dto.UserDTO;
+import dto.UsersDTO;
 import entities.Role;
 import entities.User;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import errorhandling.AuthenticationException;
 import errorhandling.InvalidInputException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import javax.persistence.TypedQuery;
 
-/**
- * @author lam@cphbusiness.dk
- */
 public class UserFacade {
 
     private static EntityManagerFactory emf;
@@ -20,11 +21,6 @@ public class UserFacade {
     private UserFacade() {
     }
 
-    /**
-     *
-     * @param _emf
-     * @return the instance of this facade.
-     */
     public static UserFacade getUserFacade(EntityManagerFactory _emf) {
         if (instance == null) {
             emf = _emf;
@@ -33,8 +29,6 @@ public class UserFacade {
         return instance;
     }
 
-    /* used to search for a user and throws an exception if user either doesn't
-    exist or the values are wrong */
     public User getVeryfiedUser(String username, String password) throws AuthenticationException {
         EntityManager em = emf.createEntityManager();
         User user;
@@ -49,7 +43,7 @@ public class UserFacade {
         return user;
     }
 
-    public User getUser(String username) {
+    public User getSpecificUser(String username) {
         EntityManager em = emf.createEntityManager();
         User user;
         try {
@@ -58,6 +52,38 @@ public class UserFacade {
             em.close();
         }
         return user;
+    }
+    
+    public UsersDTO getUsers() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u", User.class);
+            Role admin = em.find(Role.class, "admin");
+            List<User> dbList = query.getResultList();
+            UsersDTO result = new UsersDTO(dbList);
+            return result;
+        } finally {
+            em.close();
+        }
+    }
+    
+    public UsersDTO getNonAdminUsers() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u", User.class);
+            Role admin = em.find(Role.class, "admin");
+            List<User> dbList = query.getResultList();
+            List<User> resultList = new ArrayList();
+            for (User user : dbList) {
+                if(!user.getRoleList().contains(admin)){
+                    resultList.add(user);
+                }
+            }
+            UsersDTO result = new UsersDTO(resultList);
+            return result;
+        } finally {
+            em.close();
+        }
     }
 
     public String createUser(UserDTO newUser) {
@@ -153,6 +179,18 @@ public class UserFacade {
                         + "and needs to be between 5 and 20 characters.");
             }
 
+        } finally {
+            em.close();
+        }
+    }
+    
+    public void deleteUser(String userName) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            User u = em.find(User.class, userName);
+            em.remove(u);
+            em.getTransaction().commit();
         } finally {
             em.close();
         }
