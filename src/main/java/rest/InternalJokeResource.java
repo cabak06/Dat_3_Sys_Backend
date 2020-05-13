@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dto.InternalJokeDTO;
 import dto.InternalJokesDTO;
+import entities.User;
 import utils.EMF_Creator;
 import facades.InternalJokeFacade;
 import javax.annotation.security.RolesAllowed;
@@ -112,4 +113,31 @@ public class InternalJokeResource {
         FACADE.editUserJoke(thisuser, editedJoke);
         return GSON.toJson(editedJoke);
     }
+    
+ 
+    @PUT
+    @Path("favorite/{id}")
+    @RolesAllowed({"user"})
+    @Produces({MediaType.APPLICATION_JSON})
+    
+    public String addFavoriteJoke(@PathParam("id") Long id) {
+    String thisuser = securityContext.getUserPrincipal().getName();
+    InternalJokeDTO joke = FACADE.addJokeToFavoriteList(thisuser,id);
+    return GSON.toJson(joke);
+    }
+    
+    @GET
+    @Path("favorites")
+    @RolesAllowed("user")
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getFavoriteList() {
+        String thisuser = securityContext.getUserPrincipal().getName();
+
+        InternalJokesDTO allJokes = FACADE.getUserFavorites(thisuser);
+        return GSON.toJson(allJokes);
+    }
+    
+    
+    
+    
 }

@@ -20,6 +20,7 @@ public class JokerDTO {
 
     public void fixJoke() {
         String fixedJoke = joke.replaceAll("â€™", "'");
+        fixedJoke = fixedJoke.replaceAll("â€œ", "\"");
         setJoke(fixedJoke);
     }
 

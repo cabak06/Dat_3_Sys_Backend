@@ -138,4 +138,30 @@ public class InternalJokeFacade {
             em.close();
         }
     }
+
+
+    public InternalJokeDTO addJokeToFavoriteList(String username, Long id) {
+        User user = uf.getSpecificUser(username);
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            
+            em.getTransaction().begin();
+            InternalJoke favorite = em.find(InternalJoke.class, id);
+            user.getFavoriteJokes().add(favorite);
+            em.getTransaction().commit();
+            InternalJokeDTO newJoke = new InternalJokeDTO(favorite);
+            return newJoke;
+        } finally {
+            em.close();
+        }
+    }
+
+    public InternalJokesDTO getUserFavorites(String username) {
+        User user = uf.getSpecificUser(username);
+        InternalJokesDTO results = new InternalJokesDTO(user.getFavoriteJokes());
+        return results;
+    }
+
+
 }
