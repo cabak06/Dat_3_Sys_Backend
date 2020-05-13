@@ -1,7 +1,9 @@
 package facades;
 
+import dto.InternalJokesDTO;
 import dto.UserDTO;
 import dto.UsersDTO;
+import entities.InternalJoke;
 import entities.Role;
 import entities.User;
 import javax.persistence.EntityManager;
@@ -168,7 +170,17 @@ public class UserFacade {
         try {
             em.getTransaction().begin();
             User u = em.find(User.class, userName);
+            if (!u.getJokesCreated().isEmpty()) {
+                TypedQuery<InternalJoke> query = em.createQuery("SELECT i FROM InternalJoke i WHERE i.createdBy = :userName", InternalJoke.class)
+                .setParameter("userName", u.getUserName());
+                List<InternalJoke> dbList = query.getResultList();
+                InternalJokesDTO result = new InternalJokesDTO(dbList);
+                result.getJokes().removeAll(dbList);
+                em.remove(u);
+            }
+            else {
             em.remove(u);
+            }
             em.getTransaction().commit();
         } finally {
             em.close();
