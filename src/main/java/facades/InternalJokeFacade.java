@@ -141,12 +141,13 @@ public class InternalJokeFacade {
 
 
     public InternalJokeDTO addJokeToFavoriteList(String username, Long id) {
-        User user = uf.getSpecificUser(username);
+       
         EntityManager em = emf.createEntityManager();
 
         try {
             
             em.getTransaction().begin();
+            User user = em.find(User.class,username);
             InternalJoke favorite = em.find(InternalJoke.class, id);
             user.getFavoriteJokes().add(favorite);
             em.getTransaction().commit();

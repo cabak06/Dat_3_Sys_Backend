@@ -116,10 +116,9 @@ public class InternalJokeResource {
     
  
     @PUT
-    @Path("favorite/{id}")
+    @Path("/favorite/{id}")
     @RolesAllowed({"user"})
     @Produces({MediaType.APPLICATION_JSON})
-    
     public String addFavoriteJoke(@PathParam("id") Long id) {
     String thisuser = securityContext.getUserPrincipal().getName();
     InternalJokeDTO joke = FACADE.addJokeToFavoriteList(thisuser,id);
