@@ -130,6 +130,8 @@ public class UserFacade {
             User user = new User(newUser.getUsername(), newUser.getPassword());
             user.addRole(userRole);
             em.persist(user);
+            em.flush();
+            em.clear();
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -190,18 +192,12 @@ public class UserFacade {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
+            em.flush();
+            em.clear();
             User u = em.find(User.class, userName);
-            if (!u.getJokesCreated().isEmpty()) {
-                TypedQuery<InternalJoke> query = em.createQuery("SELECT i FROM InternalJoke i WHERE i.createdBy = :userName", InternalJoke.class)
-                .setParameter("userName", u.getUserName());
-                List<InternalJoke> dbList = query.getResultList();
-                InternalJokesDTO result = new InternalJokesDTO(dbList);
-                result.getJokes().removeAll(dbList);
-                em.remove(u);
-            }
-            else {
             em.remove(u);
-            }
+            em.flush();
+            em.clear();
             em.getTransaction().commit();
         } finally {
             em.close();

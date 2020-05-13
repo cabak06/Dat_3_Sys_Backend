@@ -42,10 +42,13 @@ public class User implements Serializable {
     @ManyToMany
     private List<Role> roleList = new ArrayList();
 
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval=true)
     private List<InternalJoke> jokesCreated = new ArrayList();
     
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval=true)
+    private List<InternalMeme> memesCreated = new ArrayList();
+    
+    @OneToMany(cascade = CascadeType.PERSIST)
     private List<InternalJoke> favoriteJokes = new ArrayList();
 
     public List<InternalJoke> getFavoriteJokes() {
@@ -140,6 +143,15 @@ public class User implements Serializable {
     public void setJokesCreated(List<InternalJoke> jokesCreated) {
         this.jokesCreated = jokesCreated;
     }
+
+    public List<InternalMeme> getMemesCreated() {
+        return memesCreated;
+    }
+
+    public void setMemesCreated(List<InternalMeme> memesCreated) {
+        this.memesCreated = memesCreated;
+    }
+    
 
     public boolean isNsfwIsActive() {
         return nsfwIsActive;
