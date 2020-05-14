@@ -2,6 +2,7 @@ package facades;
 
 import dto.InternalJokeDTO;
 import dto.InternalJokesDTO;
+import entities.ExternalJoke;
 import utils.EMF_Creator;
 import entities.InternalJoke;
 import entities.User;
@@ -68,6 +69,7 @@ public class InternalJokeFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
+            em.createNamedQuery("ExternalJoke.deleteAllRows").executeUpdate();
             em.createQuery("DELETE FROM User");
             user1 = new User("kim", "Password123", true);
             user2 = new User("larsen", "VerySecureP4ssword");
@@ -208,19 +210,15 @@ public class InternalJokeFacadeTest {
     }
 
     
-    @Test
-    public void testAddFavoriteJoke(){
-        User user = user1;
-        InternalJoke joke = joke1;
-        String jokeBody = "Haha";
-        
-        InternalJokeDTO result = facade.addJokeToFavoriteList(user.getUserName(), joke.getId());
-        assertTrue(result.getJokeContent().equals(jokeBody));
-        assertTrue(result.getCreatedBy().equals(joke.getCreatedBy()));
-        //assertEquals(expectedId, result.getId()); 
-        
-        
-    }
-
-
+//    @Test
+//    public void testAddFavoriteJoke(){
+//        User user = user1;
+//        InternalJoke joke = joke1;
+//        String jokeBody = "Haha";
+//        
+//        InternalJokeDTO result = facade.addJokeToFavoriteList(user.getUserName(), joke.getId());
+//        assertTrue(result.getJokeContent().equals(jokeBody));
+//        assertTrue(result.getCreatedBy().equals(joke.getCreatedBy()));
+//        //assertEquals(expectedId, result.getId()); 
+//    }
 }

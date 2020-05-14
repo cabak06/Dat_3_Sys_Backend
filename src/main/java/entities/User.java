@@ -50,6 +50,9 @@ public class User implements Serializable {
     
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE})
     private List<InternalJoke> favoriteJokes = new ArrayList();
+    
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE})
+    private List<ExternalJoke> favoriteExternalJokes = new ArrayList();
 
     public List<InternalJoke> getFavoriteJokes() {
         return favoriteJokes;
@@ -57,6 +60,14 @@ public class User implements Serializable {
 
     public void setFavoriteJokes(List<InternalJoke> favoriteJokes) {
         this.favoriteJokes = favoriteJokes;
+    }
+
+    public List<ExternalJoke> getFavoriteExternalJokes() {
+        return favoriteExternalJokes;
+    }
+
+    public void setFavoriteExternalJokes(List<ExternalJoke> favoriteExternalJokes) {
+        this.favoriteExternalJokes = favoriteExternalJokes;
     }
  
     

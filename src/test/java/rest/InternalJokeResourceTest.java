@@ -69,14 +69,11 @@ public class InternalJokeResourceTest {
     public void setUp() {
         logOut();
         EntityManager em = emf.createEntityManager();
-
         try {
             em.getTransaction().begin();
-
             em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
             em.createQuery("DELETE FROM User").executeUpdate();
             em.createQuery("DELETE FROM Role").executeUpdate();
-
             p1 = "54321";
             p2 = "Monkey";
             u1 = new User("Lars", p1);
@@ -85,11 +82,9 @@ public class InternalJokeResourceTest {
             Role adminRole = new Role("admin");
             u1.addRole(userRole);
             u2.addRole(adminRole);
-
             joke1 = new InternalJoke(u1, "First joke of the day");
             joke2 = new InternalJoke(u1, "2nd joke of the day");
             joke3 = new InternalJoke(u1, "Final joke", true);
-
             em.persist(userRole);
             em.persist(adminRole);
             em.persist(u1);
@@ -97,7 +92,6 @@ public class InternalJokeResourceTest {
             em.persist(joke1);
             em.persist(joke2);
             em.persist(joke3);
-
             em.getTransaction().commit();
         } finally {
             em.close();
