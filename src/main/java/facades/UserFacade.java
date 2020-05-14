@@ -191,13 +191,22 @@ public class UserFacade {
     public void deleteUser(String userName) {
         EntityManager em = emf.createEntityManager();
         try {
+            User u;
+            em.getTransaction().begin(); //Joke
+            u = em.find(User.class, userName);
+            em.createQuery("delete from InternalJoke i WHERE i.createdBy =:username").setParameter("username", u).executeUpdate();
+            em.getTransaction().commit();
+            em.getTransaction().begin(); //meme
+            u = em.find(User.class, userName);
+            em.createQuery("delete from InternalMeme i WHERE i.createdBy =:username").setParameter("username", u).executeUpdate();
+            em.getTransaction().commit();
+            em.getTransaction().begin(); //favJoke
+            u = em.find(User.class, userName);
+            u.getFavoriteJokes().clear();
+            em.getTransaction().commit();
             em.getTransaction().begin();
-            em.flush();
-            em.clear();
-            User u = em.find(User.class, userName);
+            u = em.find(User.class, userName);
             em.remove(u);
-            em.flush();
-            em.clear();
             em.getTransaction().commit();
         } finally {
             em.close();

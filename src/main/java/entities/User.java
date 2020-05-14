@@ -48,7 +48,7 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval=true)
     private List<InternalMeme> memesCreated = new ArrayList();
     
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE})
     private List<InternalJoke> favoriteJokes = new ArrayList();
 
     public List<InternalJoke> getFavoriteJokes() {

@@ -1,7 +1,10 @@
 package rest;
 
+import dto.InternalJokesDTO;
 import dto.UserDTO;
 import dto.UsersDTO;
+import entities.InternalJoke;
+import entities.InternalMeme;
 import entities.User;
 import entities.Role;
 import io.restassured.RestAssured;
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.AfterAll;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator;
 
@@ -32,9 +36,12 @@ public class UserResourceTest {
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
     
-    private static User user, admin, both;
+    private static User user1, user2, user3, admin, both;
+    private static InternalJoke joke1, joke2;
+    private static InternalMeme meme1, meme2;
     private static String p1, p2;
-    private final static User[] USER_LIST = new User[]{user, admin, both};
+    private final static User[] USER_ARRAY = new User[]{user1, user2, user3, admin, both};
+    private final static InternalJoke[] JOKE_ARRAY = new InternalJoke[]{joke1, joke2};
 
     static HttpServer startServer() {
         ResourceConfig rc = ResourceConfig.forApplication(new ApplicationConfig());
@@ -69,23 +76,41 @@ public class UserResourceTest {
         try {
             em.getTransaction().begin();
             //Delete existing users and roles to get a "fresh" database
+            em.createQuery("delete from InternalJoke").executeUpdate();
+            em.createQuery("delete from InternalMeme").executeUpdate();
             em.createQuery("delete from User").executeUpdate();
             em.createQuery("delete from Role").executeUpdate();
+            
 
             Role userRole = new Role("user");
             Role adminRole = new Role("admin");
-            user = new User("user", p1);
-            user.addRole(userRole);
+            user1 = new User("user1", p1);
+            user1.addRole(userRole);
+            user2 = new User("user2", p1);
+            user2.addRole(userRole);
+            user3 = new User("user3", p1);
+            user3.addRole(userRole);
             admin = new User("admin", p2);
             admin.addRole(adminRole);
             both = new User("user_admin", "test");
             both.addRole(userRole);
             both.addRole(adminRole);
+            joke1 = new InternalJoke(user1, "Funny joke");
+            joke2 = new InternalJoke(user3, "Another funny joke");
+            meme1 = new InternalMeme(user2, "path1", "MemeTitle1");
+            meme2 = new InternalMeme(user3, "path2", "MemeTitle2");
             em.persist(userRole);
             em.persist(adminRole);
-            em.persist(user);
+            em.persist(user1);
+            em.persist(user2);
+            em.persist(user3);
             em.persist(admin);
             em.persist(both);
+            em.persist(joke1);
+            user3.getFavoriteJokes().add(joke1);
+            em.persist(joke2);
+            em.persist(meme1);
+            em.persist(meme2);
             System.out.println("Saved test data to database");
             em.getTransaction().commit();
         } finally {
@@ -121,7 +146,7 @@ public class UserResourceTest {
   
   @Test
   public void testAllUsersCount(){
-      int expectedCount = USER_LIST.length;
+      int expectedCount = USER_ARRAY.length;
       given()
             .contentType("application/json")
             .when()
@@ -145,7 +170,7 @@ public class UserResourceTest {
             .body("msg", equalTo("User registered"));
       
       //Check database has one more user
-      int expectedCount = USER_LIST.length + 1;
+      int expectedCount = USER_ARRAY.length + 1;
       given()
             .contentType("application/json")
             .when()
@@ -168,7 +193,7 @@ public class UserResourceTest {
   @Test
   public void test_Negative_RegisterUser_DublicateUsername(){
       String password = "Dragon7";
-      UserDTO newUser = new UserDTO(user.getUserName(), password);
+      UserDTO newUser = new UserDTO(user1.getUserName(), password);
       
       given()
             .contentType("application/json")
@@ -179,7 +204,7 @@ public class UserResourceTest {
             .body("error", equalTo("Dublicate Username"));
       
       //Check database has no more users then from setup
-      int expectedCount = USER_LIST.length;
+      int expectedCount = USER_ARRAY.length;
       given()
             .contentType("application/json")
             .when()
@@ -203,7 +228,7 @@ public class UserResourceTest {
                         + "and needs to be between 5 and 20 characters."));
       
       //Check database has no more users then from setup
-      int expectedCount = USER_LIST.length;
+      int expectedCount = USER_ARRAY.length;
       given()
             .contentType("application/json")
             .when()
@@ -227,7 +252,7 @@ public class UserResourceTest {
                         + "and needs to be between 5 and 20 characters."));
       
       //Check database has no more users then from setup
-      int expectedCount = USER_LIST.length;
+      int expectedCount = USER_ARRAY.length;
       given()
             .contentType("application/json")
             .when()
@@ -251,7 +276,7 @@ public class UserResourceTest {
                         + "and needs to be between 5 and 20 characters."));
       
       //Check database has no more users then from setup
-      int expectedCount = USER_LIST.length;
+      int expectedCount = USER_ARRAY.length;
       given()
             .contentType("application/json")
             .when()
@@ -275,7 +300,7 @@ public class UserResourceTest {
                         + "and needs to be between 5 and 20 characters."));
       
       //Check database has no more users then from setup
-      int expectedCount = USER_LIST.length;
+      int expectedCount = USER_ARRAY.length;
       given()
             .contentType("application/json")
             .when()
@@ -299,7 +324,7 @@ public class UserResourceTest {
                         + "and needs to be between 5 and 20 characters."));
       
       //Check database has no more users then from setup
-      int expectedCount = USER_LIST.length;
+      int expectedCount = USER_ARRAY.length;
       given()
             .contentType("application/json")
             .when()
@@ -318,7 +343,7 @@ public class UserResourceTest {
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
                 .when()
-                .delete("/user/" + user.getUserName()).then()
+                .delete("/user/" + user1.getUserName()).then()
                 .statusCode(204);
 
         UsersDTO result = given()
@@ -328,8 +353,46 @@ public class UserResourceTest {
                 .get("/user/allUsers").then()
                 .statusCode(200)
                 .extract().body().as(UsersDTO.class);
-
-        int expectedLength = USER_LIST.length - 1;
-        assertEquals(expectedLength, result.getUsers().size());
+        
+        InternalJokesDTO resultJoke = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/userjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+        
+        int expectedLengthUsers = USER_ARRAY.length - 1;
+        int expectedLengthJokes = JOKE_ARRAY.length - 1;
+        assertEquals(expectedLengthUsers, result.getUsers().size());
+        assertEquals(expectedLengthJokes, resultJoke.getJokes().size());
+    }
+    @Test
+    public void test_deleteOfUserWithJokeForFav() {
+        User administrator = admin;
+        String password = p2;
+        login(administrator.getUserName(), password);
+        
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/user/" + user1.getUserName()).then()
+                .statusCode(204);
+        logOut(); //For admin
+        
+        User user = user3;
+        String uPassword = p1;
+        login(user.getUserName(), uPassword);
+        InternalJokesDTO resultFavJoke = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/joke/favorites").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokesDTO.class);
+        
+        assertEquals(resultFavJoke.getJokes().size(), 0);
+        
     }
 }
