@@ -149,7 +149,9 @@ public class InternalJokeFacade {
             em.getTransaction().begin();
             User user = em.find(User.class,username);
             InternalJoke favorite = em.find(InternalJoke.class, id);
-            user.getFavoriteJokes().add(favorite);
+            if(!user.getFavoriteJokes().contains(favorite)){
+            user.getFavoriteJokes().add(favorite);    
+            }
             em.getTransaction().commit();
             InternalJokeDTO newJoke = new InternalJokeDTO(favorite);
             return newJoke;
@@ -164,5 +166,25 @@ public class InternalJokeFacade {
         return results;
     }
 
+    
+public InternalJokeDTO removeJokeFromFavoriteList(String username, Long id) {
+       
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            
+            em.getTransaction().begin();
+            User user = em.find(User.class,username);
+            InternalJoke favorite = em.find(InternalJoke.class, id);
+            if(user.getFavoriteJokes().contains(favorite)){
+            user.getFavoriteJokes().remove(favorite);    
+            }
+            em.getTransaction().commit();
+            InternalJokeDTO newJoke = new InternalJokeDTO(favorite);
+            return newJoke;
+        } finally {
+            em.close();
+        }
+    }
 
 }

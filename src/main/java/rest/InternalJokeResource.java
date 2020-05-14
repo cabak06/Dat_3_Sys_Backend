@@ -136,7 +136,16 @@ public class InternalJokeResource {
         return GSON.toJson(allJokes);
     }
     
-    
+
+    @PUT
+    @Path("/remove_favorite/{id}")
+    @RolesAllowed({"user"})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String removeFavoriteJoke(@PathParam("id") Long id) {
+    String thisuser = securityContext.getUserPrincipal().getName();
+    InternalJokeDTO joke = FACADE.removeJokeFromFavoriteList(thisuser,id);
+    return GSON.toJson(joke);
+    }
     
     
 }
