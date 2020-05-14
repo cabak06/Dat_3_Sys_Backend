@@ -1,12 +1,15 @@
 package entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Temporal;
@@ -34,6 +37,9 @@ public class InternalJoke implements Serializable {
     private Date lastEdited;
 
     private boolean nsfw;
+    
+    @ManyToMany(mappedBy = "favoriteJokes", cascade = CascadeType.DETACH)
+    private List<User> favoriteJokeUsers = new ArrayList();
 
     public InternalJoke(User createdBy, String jokeContent) {
         this.createdBy = createdBy;
@@ -104,4 +110,12 @@ public class InternalJoke implements Serializable {
         this.nsfw = nsfw;
     }
 
+    public List<User> getFavoriteJokeUsers() {
+        return favoriteJokeUsers;
+    }
+
+    public void setFavoriteJokeUsers(List<User> favoriteJokeUsers) {
+        this.favoriteJokeUsers = favoriteJokeUsers;
+    }
+    
 }

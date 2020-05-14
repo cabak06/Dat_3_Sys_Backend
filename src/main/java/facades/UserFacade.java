@@ -1,7 +1,9 @@
 package facades;
 
+import dto.InternalJokesDTO;
 import dto.UserDTO;
 import dto.UsersDTO;
+import entities.InternalJoke;
 import entities.Role;
 import entities.User;
 import javax.persistence.EntityManager;
@@ -128,6 +130,8 @@ public class UserFacade {
             User user = new User(newUser.getUsername(), newUser.getPassword());
             user.addRole(userRole);
             em.persist(user);
+            em.flush();
+            em.clear();
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -187,8 +191,21 @@ public class UserFacade {
     public void deleteUser(String userName) {
         EntityManager em = emf.createEntityManager();
         try {
+            User u;
+            em.getTransaction().begin(); //Joke
+            u = em.find(User.class, userName);
+            em.createQuery("delete from InternalJoke i WHERE i.createdBy =:username").setParameter("username", u).executeUpdate();
+            em.getTransaction().commit();
+            em.getTransaction().begin(); //meme
+            u = em.find(User.class, userName);
+            em.createQuery("delete from InternalMeme i WHERE i.createdBy =:username").setParameter("username", u).executeUpdate();
+            em.getTransaction().commit();
+            em.getTransaction().begin(); //favJoke
+            u = em.find(User.class, userName);
+            u.getFavoriteJokes().clear();
+            em.getTransaction().commit();
             em.getTransaction().begin();
-            User u = em.find(User.class, userName);
+            u = em.find(User.class, userName);
             em.remove(u);
             em.getTransaction().commit();
         } finally {
