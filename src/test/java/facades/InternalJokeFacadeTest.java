@@ -6,6 +6,7 @@ import entities.ExternalJoke;
 import utils.EMF_Creator;
 import entities.InternalJoke;
 import entities.User;
+import errorhandling.InvalidInputException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -171,16 +172,16 @@ public class InternalJokeFacadeTest {
             assertFalse(joke.isNsfw());
         }
     }
-    
+
     @Test
     public void testGetUserJokesBySpecificUser() {
         User user = user1;
         InternalJokesDTO result = facade.getUserJokesForSpecificUser(user.getUserName());
         int expectedSize = 2;
-        
+
         assertEquals(expectedSize, result.getJokes().size());
     }
-    
+
     @Test
     public void testDeleteOwnJokeAsUser() {
         User user = user1;
@@ -196,7 +197,7 @@ public class InternalJokeFacadeTest {
             em.close();
         }
     }
-    
+
     @Test
     public void testEditOwnJokesAsSpecificUser() {
         User user = user1;
@@ -204,17 +205,17 @@ public class InternalJokeFacadeTest {
         InternalJokeDTO ij = new InternalJokeDTO(joke);
         ij.setJokeContent("mulallala");
         InternalJokeDTO result = facade.editUserJoke(user.getUserName(), ij);
-        
+
         assertTrue(result.getJokeContent().equals(ij.getJokeContent()));
         assertFalse(result.getJokeContent().equals(joke.getJokeContent()));
     }
-    
+
     @Test
-    public void testAddInternalJokeToFavoriteList() {
+    public void testAddInternalJokeToFavoriteList() throws InvalidInputException {
         User user = user1;
         InternalJoke joke = joke2;
         facade.addJokeToFavoriteList(user.getUserName(), joke.getId());
-        
+
         EntityManager em = emf.createEntityManager();
         try {
             User dbUser = em.find(User.class, user.getUserName());
@@ -227,32 +228,23 @@ public class InternalJokeFacadeTest {
             em.close();
         }
     }
-    
-    @Test(expected = NullPointerException.class)
+
+    @Test
     public void testAddInternalJokeToFavoriteList_JokeDoesNotExist() {
         User user = user1;
-        long notExistingJoke = 10;
-        facade.addJokeToFavoriteList(user.getUserName(), notExistingJoke);
-        
-        EntityManager em = emf.createEntityManager();
-        try {
-            User dbUser = em.find(User.class, user.getUserName());
-            List<InternalJoke> dbResult = dbUser.getFavoriteJokes();
-            int ExpectedResultForUser = 1;
-            assertEquals(ExpectedResultForUser, dbResult.size());
-        } catch (Exception e) {
-            fail(e.getMessage());
-        } finally {
-            em.close();
-        }
+        long notExistingJoke = joke2.getId() + 2;
+
+        assertThrows(InvalidInputException.class, () -> {
+            facade.addJokeToFavoriteList(user.getUserName(), notExistingJoke);
+        });
     }
-    
+
     @Test
-    public void testAddInternalJokeToFavoriteList_JokeIsAlreadyAdded() {
+    public void testAddInternalJokeToFavoriteList_JokeIsAlreadyAdded() throws InvalidInputException {
         User user = user2;
         InternalJoke alreadyAddedJoke = joke2;
         facade.addJokeToFavoriteList(user.getUserName(), alreadyAddedJoke.getId());
-        
+
         EntityManager em = emf.createEntityManager();
         try {
             User dbUser = em.find(User.class, user.getUserName());
@@ -265,34 +257,34 @@ public class InternalJokeFacadeTest {
             em.close();
         }
     }
-    
+
     @Test
     public void testGetUserFavorites() {
         User user = user2;
         List<InternalJoke> results = user.getFavoriteJokes();
-        
+
         int expectedResult = 1;
         assertEquals(expectedResult, results.size());
     }
-    
+
     @Test
     public void testRemoveJokeFromFavoriteList() {
         User user = user2;
         user.getFavoriteJokes().remove(joke2);
-        
+
         List<InternalJoke> results = user.getFavoriteJokes();
-        
+
         int expectedResult = 0;
         assertEquals(expectedResult, results.size());
     }
-    
+
     @Test
     public void testRemoveJokeFromFavoriteList_JokeDoesNotExist() {
         User user = user1;
         user.getFavoriteJokes().remove(joke1);
-        
+
         List<InternalJoke> results = user.getFavoriteJokes();
-        
+
         int expectedResult = 0;
         assertEquals(expectedResult, results.size());
     }
