@@ -5,6 +5,7 @@ import dto.InternalMemesDTO;
 import utils.EMF_Creator;
 import entities.InternalMeme;
 import entities.User;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterAll;
@@ -140,5 +141,20 @@ public class InternalMemeFacadeTest {
         assertTrue(result.getPicturePath().equals(memeDTO.getPicturePath()));
         assertTrue(result.getTitle().equals(memeDTO.getTitle()));
         assertEquals(expectedId, result.getId());
+    }
+    
+    @Test
+    public void testDeleteMeme() {
+        facade.deleteUserMeme(meme1.getId());
+
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<InternalMeme> dbResult = em.createQuery("Select m FROM InternalMeme m", InternalMeme.class).getResultList();
+            assertEquals(memes.length - 1, dbResult.size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            em.close();
+        }
     }
 }

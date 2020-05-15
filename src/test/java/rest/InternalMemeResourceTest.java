@@ -252,4 +252,66 @@ public class InternalMemeResourceTest {
             em.close();
         }
     }
+    
+    @Test
+    public void testDeleteJokeEndpoint_asAdmin() {
+        User user = u2;
+        login(user.getUserName(), p2);
+
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/meme/delete/" + meme3.getId()).then()
+                .statusCode(204);
+
+        InternalMemesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/meme/usermemes").then()
+                .statusCode(200)
+                .extract().body().as(InternalMemesDTO.class);
+
+        int expectedLength = memeArray.length - 1;
+        assertEquals(expectedLength, result.getMemes().size());
+    }
+    
+    @Test
+    public void testDeleteJokeEndpoint_asAdminEndpointDoesNotExist() {
+        User user = u2;
+        login(user.getUserName(), p2);
+        long memeID = meme3.getId()+4;
+
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/meme/delete/" + memeID).then()
+                .statusCode(204);
+
+        InternalMemesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/meme/usermemes").then()
+                .statusCode(200)
+                .extract().body().as(InternalMemesDTO.class);
+
+        int expectedLength = memeArray.length;
+        assertEquals(expectedLength, result.getMemes().size());
+    }
+
+    @Test
+    public void negativeTestDeleteJokeEndpoint_notAdmin() {
+        User user = u1; //logged in as a regular user not admin
+        login(user.getUserName(), p1);
+
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/meme/delete/" + meme3.getId()).then()
+                .statusCode(401);
+    }
 }
