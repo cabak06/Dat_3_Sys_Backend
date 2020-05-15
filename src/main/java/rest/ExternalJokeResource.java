@@ -1,11 +1,15 @@
 package rest;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dto.ChuckJokeDTO;
 import dto.DadJokeDTO;
 import dto.ApiDTO;
+import dto.ExternalJokeDTO;
+import dto.ExternalJokesDTO;
 import dto.JokerDTO;
 import entities.User;
+import facades.ExternalJokeFacade;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +26,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import utils.EMF_Creator;
@@ -32,14 +38,11 @@ import utils.HttpUtils;
 public class ExternalJokeResource {
 
     private static EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.DEV, EMF_Creator.Strategy.CREATE);
-
-    @Context
-    private UriInfo context;
-
     @Context
     SecurityContext securityContext;
-
-    private final static Gson GSON = new Gson();
+ 
+    private static final ExternalJokeFacade FACADE = ExternalJokeFacade.getJokeFacade(EMF);
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -88,5 +91,36 @@ public class ExternalJokeResource {
             return "{\"info\":\"Error\"}";
         }
     }
+    
+    @PUT
+    @Path("/favorite")
+    @RolesAllowed({"user"})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String addFavoriteExternalJoke(String input) {
+        String thisuser = securityContext.getUserPrincipal().getName();
+        ExternalJokeDTO joke = GSON.fromJson(input, ExternalJokeDTO.class);
+        ExternalJokeDTO result = FACADE.addExternalJokeToFavoriteList(thisuser, joke);
+        return GSON.toJson(result);
+    }
+    
+    @GET
+    @Path("favorites")
+    @RolesAllowed("user")
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getFavoriteList() {
+        String thisuser = securityContext.getUserPrincipal().getName();
+        ExternalJokesDTO allJokes = FACADE.getUserFavorites(thisuser);
+        return GSON.toJson(allJokes);
+    }
+    
 
+    @PUT
+    @Path("/remove_favorite/{id}")
+    @RolesAllowed({"user"})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String removeFavoriteJoke(@PathParam("id") Long id) {
+        String thisuser = securityContext.getUserPrincipal().getName();
+        ExternalJokeDTO joke = FACADE.removeJokeFromFavoriteList(thisuser,id);
+        return GSON.toJson(joke);
+    }
 }

@@ -2,6 +2,7 @@ package facades;
 
 import dto.InternalJokeDTO;
 import dto.InternalJokesDTO;
+import entities.ExternalJoke;
 import utils.EMF_Creator;
 import entities.InternalJoke;
 import entities.User;
@@ -68,6 +69,7 @@ public class InternalJokeFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
+            em.createNamedQuery("ExternalJoke.deleteAllRows").executeUpdate();
             em.createQuery("DELETE FROM User");
             user1 = new User("kim", "Password123", true);
             user2 = new User("larsen", "VerySecureP4ssword");
@@ -217,8 +219,14 @@ public class InternalJokeFacadeTest {
 //        InternalJokeDTO result = facade.addJokeToFavoriteList(user.getUserName(), joke.getId());
 //        assertTrue(result.getJokeContent().equals(jokeBody));
 //        assertTrue(result.getCreatedBy().equals(joke.getCreatedBy()));
+<<<<<<< HEAD
 // 
 //    }
 
 
 }
+=======
+//        //assertEquals(expectedId, result.getId()); 
+//    }
+}
+>>>>>>> 76d88d9fec1be700ce55e93aa5fb5a380e41e4bc
