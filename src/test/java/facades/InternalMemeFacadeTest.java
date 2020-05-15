@@ -56,6 +56,7 @@ public class InternalMemeFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("InternalMeme.deleteAllRows").executeUpdate();
+            em.createQuery("DELETE FROM User").executeUpdate();
             user1 = new User("kim", "Password123", true);
             user2 = new User("larsen", "VerySecureP4ssword");
             meme1 = new InternalMeme(user1, "Haha.com", "much fun");
@@ -84,7 +85,6 @@ public class InternalMemeFacadeTest {
             em.getTransaction().begin();
             em.createNamedQuery("InternalMeme.deleteAllRows").executeUpdate();
             em.createQuery("DELETE FROM User").executeUpdate();
-
             em.getTransaction().commit();
         } finally {
             em.close();

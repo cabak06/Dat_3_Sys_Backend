@@ -70,7 +70,7 @@ public class InternalJokeFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
-            em.createQuery("DELETE FROM User");
+            em.createQuery("DELETE FROM User").executeUpdate();
             user1 = new User("kim", "Password123", true);
             user2 = new User("larsen", "VerySecureP4ssword");
             joke1 = new InternalJoke(user1, "Haha");
