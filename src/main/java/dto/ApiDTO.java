@@ -23,14 +23,14 @@ public class ApiDTO {
     public ApiDTO(ChuckJokeDTO chuck, DadJokeDTO dad, JokerDTO joker) {
         if (!Objects.isNull(chuck)) {
             this.chuckJoke = chuck.getValue();
-            this.chuckJokeID = chuck.getId();
+            this.chuckJokeID = "https://api.chucknorris.io/jokes/" + chuck.getId();
         } else {
             this.chuckJoke = COULD_NOT_FETCH;
             this.chuckJokeID = COULD_NOT_FETCH;
         }
         if (!Objects.isNull(dad)) {
             this.dadJoke = dad.getJoke();
-            this.dadJokeID = dad.getId();
+            this.dadJokeID = "https://icanhazdadjoke.com/j/" + dad.getId();
         } else {
             this.dadJoke = COULD_NOT_FETCH;
             this.dadJokeID = COULD_NOT_FETCH;
