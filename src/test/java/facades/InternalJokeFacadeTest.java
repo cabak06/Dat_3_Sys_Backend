@@ -208,19 +208,17 @@ public class InternalJokeFacadeTest {
     }
 
     
-    @Test
-    public void testAddFavoriteJoke(){
-        User user = user1;
-        InternalJoke joke = joke1;
-        String jokeBody = "Haha";
-        
-        InternalJokeDTO result = facade.addJokeToFavoriteList(user.getUserName(), joke.getId());
-        assertTrue(result.getJokeContent().equals(jokeBody));
-        assertTrue(result.getCreatedBy().equals(joke.getCreatedBy()));
-        //assertEquals(expectedId, result.getId()); 
-        
-        
-    }
+//    @Test
+//    public void testAddFavoriteJoke(){
+//        User user = user1;
+//        InternalJoke joke = joke1;
+//        String jokeBody = "Haha";
+//        
+//        InternalJokeDTO result = facade.addJokeToFavoriteList(user.getUserName(), joke.getId());
+//        assertTrue(result.getJokeContent().equals(jokeBody));
+//        assertTrue(result.getCreatedBy().equals(joke.getCreatedBy()));
+// 
+//    }
 
 
 }

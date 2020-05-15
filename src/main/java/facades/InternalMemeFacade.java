@@ -76,4 +76,18 @@ public class InternalMemeFacade {
             em.close();
         }
     }
+
+    public void deleteUserMeme(Long id) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("DELETE FROM InternalMeme i WHERE i.id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+    }
+
 }
