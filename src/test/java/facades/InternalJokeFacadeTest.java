@@ -59,6 +59,15 @@ public class InternalJokeFacadeTest {
     @AfterAll
     public static void tearDownClass() {
 //        Clean up database after test is done or use a persistence unit with drop-and-create to start up clean on every test
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
+            em.createQuery("DELETE FROM User").executeUpdate();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
     }
 
     // Setup the DataBase in a known state BEFORE EACH TEST
