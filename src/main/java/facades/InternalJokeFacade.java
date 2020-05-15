@@ -4,6 +4,7 @@ import dto.InternalJokeDTO;
 import dto.InternalJokesDTO;
 import entities.InternalJoke;
 import entities.User;
+import errorhandling.InvalidInputException;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -140,12 +141,9 @@ public class InternalJokeFacade {
     }
 
 
-    public InternalJokeDTO addJokeToFavoriteList(String username, Long id) {
-       
+    public InternalJokeDTO addJokeToFavoriteList(String username, Long id) throws InvalidInputException {
         EntityManager em = emf.createEntityManager();
-
         try {
-            
             em.getTransaction().begin();
             User user = em.find(User.class,username);
             InternalJoke favorite = em.find(InternalJoke.class, id);
@@ -155,6 +153,8 @@ public class InternalJokeFacade {
             em.getTransaction().commit();
             InternalJokeDTO newJoke = new InternalJokeDTO(favorite);
             return newJoke;
+        } catch (NullPointerException e) {
+            throw new InvalidInputException("No joke with matching ID was found");
         } finally {
             em.close();
         }

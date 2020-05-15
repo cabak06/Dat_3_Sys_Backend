@@ -85,6 +85,7 @@ public class InternalJokeResourceTest {
             joke1 = new InternalJoke(u1, "First joke of the day");
             joke2 = new InternalJoke(u1, "2nd joke of the day");
             joke3 = new InternalJoke(u1, "Final joke", true);
+            u1.getFavoriteJokes().add(joke3);
             em.persist(userRole);
             em.persist(adminRole);
             em.persist(u1);
@@ -389,5 +390,86 @@ public class InternalJokeResourceTest {
         }
         assertNotNull(result);
         assertEquals(expectedResult.getJokeContent(), result.getJokeContent());
+    }
+    
+    @Test
+    public void testAddFavoriteExternalJoke() {
+        User user = u1;
+
+        InternalJokeDTO newJoke = new InternalJokeDTO("Haha fun", "lol.io");
+        login(user.getUserName(), p1);
+        
+            given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(newJoke)
+                .accept(ContentType.JSON)
+                .when()
+                .put("/joke/favorite/"+joke2.getId()).then()
+                .statusCode(200)
+                .extract().body().as(InternalJokeDTO.class);
+        
+        EntityManager em = emf.createEntityManager();
+        try {
+        User dbUser = em.find(User.class, user.getUserName());
+        int expectedResult = 2;
+        assertEquals(expectedResult, dbUser.getFavoriteJokes().size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            em.close();
+        }
+    }
+    
+    @Test
+    public void testGetFavoriteList() {
+        User user = u1;
+        login(user.getUserName(), p1);
+        
+            given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .accept(ContentType.JSON)
+                .when()
+                .get("/joke/favorites").then()
+                .statusCode(200)
+                .extract().body().as(InternalJokeDTO.class);
+            
+        EntityManager em = emf.createEntityManager();
+        try {
+        User dbUser = em.find(User.class, user.getUserName());
+        int expectedResult = 1;
+        assertEquals(expectedResult, dbUser.getFavoriteJokes().size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            em.close();
+        }
+    }
+    
+    @Test
+    public void testRemoveFavoriteJoke() {
+        User user = u1;
+        login(user.getUserName(), p1);
+        
+            given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .accept(ContentType.JSON)
+                .when()
+                .put("/joke/remove_favorite/"+joke3.getId()).then()
+                .statusCode(200)
+                .extract().body().as(InternalJokeDTO.class);
+            
+        EntityManager em = emf.createEntityManager();
+        try {
+        User dbUser = em.find(User.class, user.getUserName());
+        int expectedResult = 0;
+        assertEquals(expectedResult, dbUser.getFavoriteJokes().size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            em.close();
+        }
     }
 }

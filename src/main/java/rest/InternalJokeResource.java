@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import dto.InternalJokeDTO;
 import dto.InternalJokesDTO;
 import entities.User;
+import errorhandling.InvalidInputException;
 import utils.EMF_Creator;
 import facades.InternalJokeFacade;
 import javax.annotation.security.RolesAllowed;
@@ -119,7 +120,7 @@ public class InternalJokeResource {
     @Path("/favorite/{id}")
     @RolesAllowed({"user"})
     @Produces({MediaType.APPLICATION_JSON})
-    public String addFavoriteJoke(@PathParam("id") Long id) {
+    public String addFavoriteJoke(@PathParam("id") Long id) throws InvalidInputException {
     String thisuser = securityContext.getUserPrincipal().getName();
     InternalJokeDTO joke = FACADE.addJokeToFavoriteList(thisuser,id);
     return GSON.toJson(joke);

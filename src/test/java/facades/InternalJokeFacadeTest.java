@@ -6,6 +6,7 @@ import entities.ExternalJoke;
 import utils.EMF_Creator;
 import entities.InternalJoke;
 import entities.User;
+import errorhandling.InvalidInputException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -69,12 +70,12 @@ public class InternalJokeFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
-            em.createNamedQuery("ExternalJoke.deleteAllRows").executeUpdate();
             em.createQuery("DELETE FROM User");
             user1 = new User("kim", "Password123", true);
             user2 = new User("larsen", "VerySecureP4ssword");
             joke1 = new InternalJoke(user1, "Haha");
             joke2 = new InternalJoke(user1, "jokeContent", true);
+            user2.getFavoriteJokes().add(joke2);
             em.persist(user1);
             em.persist(user2);
             em.persist(joke1);
@@ -171,16 +172,16 @@ public class InternalJokeFacadeTest {
             assertFalse(joke.isNsfw());
         }
     }
-    
+
     @Test
     public void testGetUserJokesBySpecificUser() {
         User user = user1;
         InternalJokesDTO result = facade.getUserJokesForSpecificUser(user.getUserName());
         int expectedSize = 2;
-        
+
         assertEquals(expectedSize, result.getJokes().size());
     }
-    
+
     @Test
     public void testDeleteOwnJokeAsUser() {
         User user = user1;
@@ -196,7 +197,7 @@ public class InternalJokeFacadeTest {
             em.close();
         }
     }
-    
+
     @Test
     public void testEditOwnJokesAsSpecificUser() {
         User user = user1;
@@ -204,23 +205,87 @@ public class InternalJokeFacadeTest {
         InternalJokeDTO ij = new InternalJokeDTO(joke);
         ij.setJokeContent("mulallala");
         InternalJokeDTO result = facade.editUserJoke(user.getUserName(), ij);
-        
+
         assertTrue(result.getJokeContent().equals(ij.getJokeContent()));
         assertFalse(result.getJokeContent().equals(joke.getJokeContent()));
     }
 
-    
-//    @Test
-//    public void testAddFavoriteJoke(){
-//        User user = user1;
-//        InternalJoke joke = joke1;
-//        String jokeBody = "Haha";
-//        
-//        InternalJokeDTO result = facade.addJokeToFavoriteList(user.getUserName(), joke.getId());
-//        assertTrue(result.getJokeContent().equals(jokeBody));
-//        assertTrue(result.getCreatedBy().equals(joke.getCreatedBy()));
+    @Test
+    public void testAddInternalJokeToFavoriteList() throws InvalidInputException {
+        User user = user1;
+        InternalJoke joke = joke2;
+        facade.addJokeToFavoriteList(user.getUserName(), joke.getId());
 
-//        //assertEquals(expectedId, result.getId()); 
-//    }
+        EntityManager em = emf.createEntityManager();
+        try {
+            User dbUser = em.find(User.class, user.getUserName());
+            List<InternalJoke> dbResult = dbUser.getFavoriteJokes();
+            int ExpectedResultForUser = 1;
+            assertEquals(ExpectedResultForUser, dbResult.size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    public void testAddInternalJokeToFavoriteList_JokeDoesNotExist() {
+        User user = user1;
+        long notExistingJoke = joke2.getId() + 2;
+
+        assertThrows(InvalidInputException.class, () -> {
+            facade.addJokeToFavoriteList(user.getUserName(), notExistingJoke);
+        });
+    }
+
+    @Test
+    public void testAddInternalJokeToFavoriteList_JokeIsAlreadyAdded() throws InvalidInputException {
+        User user = user2;
+        InternalJoke alreadyAddedJoke = joke2;
+        facade.addJokeToFavoriteList(user.getUserName(), alreadyAddedJoke.getId());
+
+        EntityManager em = emf.createEntityManager();
+        try {
+            User dbUser = em.find(User.class, user.getUserName());
+            List<InternalJoke> dbResult = dbUser.getFavoriteJokes();
+            int ExpectedResultForUser = 1;
+            assertEquals(ExpectedResultForUser, dbResult.size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    public void testGetUserFavorites() {
+        User user = user2;
+        List<InternalJoke> results = user.getFavoriteJokes();
+
+        int expectedResult = 1;
+        assertEquals(expectedResult, results.size());
+    }
+
+    @Test
+    public void testRemoveJokeFromFavoriteList() {
+        User user = user2;
+        user.getFavoriteJokes().remove(joke2);
+
+        List<InternalJoke> results = user.getFavoriteJokes();
+
+        int expectedResult = 0;
+        assertEquals(expectedResult, results.size());
+    }
+
+    @Test
+    public void testRemoveJokeFromFavoriteList_JokeDoesNotExist() {
+        User user = user1;
+        user.getFavoriteJokes().remove(joke1);
+
+        List<InternalJoke> results = user.getFavoriteJokes();
+
+        int expectedResult = 0;
+        assertEquals(expectedResult, results.size());
+    }
 }
-
