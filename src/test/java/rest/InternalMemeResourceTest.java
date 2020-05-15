@@ -254,7 +254,7 @@ public class InternalMemeResourceTest {
     }
     
     @Test
-    public void testDeleteJokeEndpoint_asAdmin() {
+    public void testDeleteUserMeme_asAdmin() {
         User user = u2;
         login(user.getUserName(), p2);
 
