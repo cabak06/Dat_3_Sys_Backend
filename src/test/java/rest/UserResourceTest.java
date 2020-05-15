@@ -64,13 +64,6 @@ public class UserResourceTest {
 
     @AfterAll
     public static void closeTestServer() {
-        //Don't forget this, if you called its counterpart in @BeforeAll
-        EMF_Creator.endREST_TestWithDB();
-        httpServer.shutdownNow();
-    }
-    
-    @AfterEach
-    public void closeEach(){
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
@@ -82,6 +75,10 @@ public class UserResourceTest {
         } finally {
             em.close();
         }
+        
+        //Don't forget this, if you called its counterpart in @BeforeAll
+        EMF_Creator.endREST_TestWithDB();
+        httpServer.shutdownNow();
     }
 
     // Setup the DataBase (used by the test-server and this test) in a known state BEFORE EACH TEST
@@ -408,7 +405,6 @@ public class UserResourceTest {
                 .statusCode(200)
                 .extract().body().as(InternalJokesDTO.class);
         
-        assertEquals(resultFavJoke.getJokes().size(), 0);
-        
+        assertEquals(0, resultFavJoke.getJokes().size());
     }
 }

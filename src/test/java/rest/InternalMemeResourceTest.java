@@ -74,6 +74,7 @@ public class InternalMemeResourceTest {
         try {
             em.getTransaction().begin();
 
+            em.createNamedQuery("InternalJoke.deleteAllRows").executeUpdate();
             em.createNamedQuery("InternalMeme.deleteAllRows").executeUpdate();
             em.createQuery("DELETE FROM User").executeUpdate();
             em.createQuery("DELETE FROM Role").executeUpdate();
