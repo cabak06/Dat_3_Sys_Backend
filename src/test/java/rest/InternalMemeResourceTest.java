@@ -252,4 +252,28 @@ public class InternalMemeResourceTest {
             em.close();
         }
     }
+    
+    @Test
+    public void testDeleteUserMeme_asAdmin() {
+        User user = u2;
+        login(user.getUserName(), p2);
+
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("/meme/delete/" + meme3.getId()).then()
+                .statusCode(204);
+
+        InternalMemesDTO result = given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/meme/userjokes").then()
+                .statusCode(200)
+                .extract().body().as(InternalMemesDTO.class);
+
+        int expectedLength = memeArray.length - 1;
+        assertEquals(expectedLength, result.getMemes().size());
+    }
 }
