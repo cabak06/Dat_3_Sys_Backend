@@ -219,14 +219,8 @@ public class InternalJokeFacadeTest {
 //        InternalJokeDTO result = facade.addJokeToFavoriteList(user.getUserName(), joke.getId());
 //        assertTrue(result.getJokeContent().equals(jokeBody));
 //        assertTrue(result.getCreatedBy().equals(joke.getCreatedBy()));
-<<<<<<< HEAD
-// 
-//    }
 
-
-}
-=======
 //        //assertEquals(expectedId, result.getId()); 
 //    }
 }
->>>>>>> 76d88d9fec1be700ce55e93aa5fb5a380e41e4bc
+
